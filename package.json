@@ -1,0 +1,22 @@
+{
+  "name": "uniswapv3-charts",
+  "version": "1.0.0",
+  "description": "View historic and real time price charts from Uniswap V3 pool data",
+  "main": "index.js",
+  "scripts": {
+    "preinstall" : "node gcpSetup.js",
+    "start": "nodemon",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "author": "Vandenynas",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/storage": "^6.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^2.0.19",
+    "unirest": "^0.6.0"
+  }
+}

@@ -78,7 +78,7 @@ const PriceChart = (props) => {
   useEffect(() => {
 
     const getResponse = async () => {
-      const response = await fetch("http://localhost:5000/get-url/30 seconds/AAVEWETH")
+      const response = await fetch("/get-url/30 seconds/AAVEWETH")
 
       const data = await response.json();
 

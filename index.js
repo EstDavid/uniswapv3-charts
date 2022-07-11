@@ -7,6 +7,7 @@ const express = require("express");
 var cors = require("cors");
 var { format }  = require("util");
 var Multer = require( "multer");
+var path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -43,7 +44,7 @@ app.get("/get-url/:timeframe/:symbol", (req, res) => {
 });
 
 app.get('*', function (req, res) {
-  res.sendFile(path.join('client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
 app.listen(port, () => {

@@ -1,0 +1,172 @@
+export const calculateArrayTimeframe = (priceObject, timeframeTo) => {
+    let timestamps = [];
+    let open = 0;
+    let high = 0;
+    let low = 0;
+    let close = 0;
+    let startTimeframe = 0;
+    let newCandleTimestamp = 0;
+    let priceArray = {};
+
+    if(timeframeTo.seconds % priceObject.observationTimeframe.seconds !== 0) {
+        throw(`Timeframe to ${timeframeTo.seconds} is not a multiple of timeframe from ${priceObject.observationTimeframe.seconds}`);
+    }
+    if(priceObject.observations !== undefined) {
+        timestamps = Object.keys(priceObject.observations);
+        timestamps.sort((a, b) => parseInt(a) - parseInt(b));
+    }
+    else {
+        throw(`No price observation price array has been initialized for the ${priceObject.baseToken.symbol + priceObject.quoteToken.symbol} pair`);
+    }     
+
+    for(let i = 0; i < timestamps.length; i +=1) {
+        let timestamp = parseInt(timestamps[i]);
+        let priceObservation = priceObject.observations[timestamp];
+        close = priceObservation;
+        if(i === 0) { // Opening a new cande at the beginning of the series
+            startTimeframe = timestamp - (timestamp % timeframeTo.seconds);
+            newCandleTimestamp = startTimeframe + timeframeTo.seconds;
+            open = priceObservation;
+            high = priceObservation;
+            low = priceObservation;
+            priceArray[startTimeframe] = {
+                timestamp: startTimeframe,
+                open,
+                high,
+                low,
+                close
+            }
+        }
+        else if(timestamp < newCandleTimestamp) {
+            if(priceObservation > high) {
+                high = priceObservation;
+                priceArray[startTimeframe].high = high;
+            }
+            if(priceObservation < low) {
+                low = priceObservation;
+                priceArray[startTimeframe].low = low;
+            }
+            priceArray[startTimeframe].close = close;
+        }
+        else {  // Opening a new candle
+            startTimeframe = timestamp - (timestamp % timeframeTo.seconds);
+            newCandleTimestamp = startTimeframe + timeframeTo.seconds;
+            open = priceObservation;
+            high = priceObservation;
+            low = priceObservation;
+            close = priceObservation;
+            priceArray[startTimeframe] = {
+                timestamp: startTimeframe,
+                open,
+                high,
+                low,
+                close
+            }
+        }
+    }
+
+    return priceArray;
+}
+
+export const calculateCandlestickData = (arrayOHLC) => {
+    let candlestickData = [];
+    let timestamps = Object.keys(arrayOHLC);
+    for(let timestamp of timestamps) {
+      let pricePoint = {};
+      let priceOHLC = arrayOHLC[timestamp];
+      pricePoint.x = new Date(timestamp * 1000);
+      pricePoint.y = [
+        priceOHLC.open,
+        priceOHLC.high,
+        priceOHLC.low,
+        priceOHLC.close
+      ];
+      candlestickData.push(pricePoint);
+    }
+  
+    return candlestickData;
+}
+
+export const calculateSMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
+    let priceArray = getPriceArray(arrayOHLC, arrayType)
+    let arraySMA = {};
+    let lineData = [];
+    let timestampsArray = [];
+    for(let timestamp in priceArray) {
+        timestampsArray.push(parseInt(timestamp));
+    }
+    timestampsArray.sort((a, b) => a - b);
+    let periodArray = [];
+    let sum = 0;
+    for(let i = 0; i < timestampsArray.length; i += 1) {
+        let timestamp = timestampsArray[i];
+        periodArray.push(priceArray[timestamp]);
+        
+        if(periodArray.length > nPeriods) {
+            periodArray.shift();
+        }
+
+        if(periodArray.length === nPeriods) {
+            sum = periodArray.reduce(function (accumVariable, curValue) {
+                return accumVariable + curValue
+            }, 0);
+            
+            arraySMA[timestamp] = sum / nPeriods;
+            lineData.push({x: new Date(timestamp * 1000), y: sum / nPeriods});
+        };
+    }
+    return lineData;
+}
+
+export const calculateEMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
+    let priceArray = getPriceArray(arrayOHLC, arrayType)
+    let arrayEMA = {};
+    let lineData = [];
+    let k = 2 / (nPeriods + 1);
+    let timestampsArray = [];
+    for(let timestamp in priceArray) {
+        timestampsArray.push(parseInt(timestamp));
+    }
+    timestampsArray.sort((a, b) => a - b);
+    let sum = 0;
+    let ema = 0;
+    for(let i = 0; i < timestampsArray.length; i += 1) {
+        let timestamp = timestampsArray[i];
+        if(i < nPeriods - 1) {
+            sum = sum + priceArray[timestamp];
+            continue;
+        }
+        else if(i === nPeriods - 1) {
+            sum = sum + priceArray[timestamp];
+            ema = sum / nPeriods;
+            continue;
+        }
+        else {
+            ema =  priceArray[timestamp] * k + ema * (1 - k);
+        }
+        arrayEMA[timestamp] = ema;
+        lineData.push({x: new Date(timestamp * 1000), y: ema});
+    }
+    return lineData;
+}
+
+const getPriceArray = (arrayOHLC, arrayType) => {
+    let priceArray = {};
+    for(let timestamp in arrayOHLC) {
+        let valuesOHLC = arrayOHLC[timestamp];
+        // Brute but effective way of getting the array...
+        if(arrayType === 'open') {
+            priceArray[timestamp] = valuesOHLC.open;
+        }
+        if(arrayType === 'high') {
+            priceArray[timestamp] = valuesOHLC.high;
+        }
+        if(arrayType === 'low') {
+            priceArray[timestamp] = valuesOHLC.low;
+        }
+        if(arrayType === 'close') {
+            priceArray[timestamp] = valuesOHLC.close;
+        }
+    }
+    return priceArray;
+}

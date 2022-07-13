@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "preinstall" : "node gcpSetup.js",
-    "start": "nodemon",
+    "start": "node index.js",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "author": "Vandenynas",

@@ -1,138 +1,192 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import Chart from "react-apexcharts";
-import getPriceObject from './priceObservation'
+import { 
+  fetchPriceData,
+  changeTimeframe,
+  addMovingAverage,
+  priceDataSelector,
+  deleteMovingAverage
+} from '../slices/priceData';
+import { priceObjectSelector } from '../slices/priceObject';
+import initializePriceObject from '../helpers/priceObservation';
 
-const getCandleStickData = (arrayOHLC) => {
-  let candlestickData = [];
-  let timestamps = Object.keys(arrayOHLC);
-  for(let timestamp of timestamps) {
-    let pricePoint = {};
-    let priceOHLC = arrayOHLC[timestamp];
-    pricePoint.x = new Date(timestamp * 1000);
-    pricePoint.y = [
-      priceOHLC.open,
-      priceOHLC.high,
-      priceOHLC.low,
-      priceOHLC.close
-    ];
-    candlestickData.push(pricePoint);
+
+import {timeframes} from '../helpers/timeframes';
+
+import {
+  calculateArrayTimeframe,
+  calculateCandlestickData,
+  calculateSMAFromOHLC,
+  calculateEMAFromOHLC
+} from '../helpers/priceDataCalculator';
+import {defaultChartOptions} from '../helpers/chartOptions';
+import {dummyData} from '../helpers/dummyData';
+
+// Temporary parameters derived from user interaction
+const userSymbol = 'WETHUSDC';
+const userViewTimeframe = 'days1';
+const userArrayType = 'close';
+const userMAPeriods1 = 20;
+const userMAType1 = 'EMA';
+
+const PriceChart = () => {
+  const dispatch = useDispatch();
+  const {
+    loading,
+    hasErrors,
+    priceDataRaw,
+    priceObject,
+    chartObject,
+    viewTimeframe
+  } = useSelector(priceDataSelector);
+
+  const getNewTimeframe = (timeframeKey) => {
+    dispatch(changeTimeframe(timeframes[timeframeKey]));
   }
 
-  return candlestickData;
-}
+  // setTimeout(getNewTimeframe, 15000, 'hours4');
 
-const getLineData = (linearArray) => {
-  let lineData = [];
-  let timestamps = Object.keys(linearArray);
-  for(let timestamp of timestamps) {
-    let pricePoint = {};
-    pricePoint.x = new Date(timestamp * 1000);
-    pricePoint.y = linearArray[timestamp];
-    lineData.push(pricePoint);
+  const getNewSymbol = (symbol) => {
+    dispatch(fetchPriceData(symbol, viewTimeframe));
   }
 
-  return lineData;
-}
+  // var timeout3 = setTimeout(getNewSymbol, 25000, 'WBTCUSDC');
 
-const PriceChart = (props) => {
-
-  const defaultOptions = {
-    chart: {
-      height: 350,
-      type: 'line',
-    },
-    title: {
-      text: 'CandleStick Chart',
-      align: 'left'
-    },
-    stroke: {
-      width: [3, 1]
-    },
-    tooltip: {
-      shared: false,
-      custom: [function ({ seriesIndex, dataPointIndex, w }) {
-        return w.globals.series[seriesIndex][dataPointIndex]
-      }, function ({ seriesIndex, dataPointIndex, w }) {
-        var o = w.globals.seriesCandleO[seriesIndex][dataPointIndex]
-        var h = w.globals.seriesCandleH[seriesIndex][dataPointIndex]
-        var l = w.globals.seriesCandleL[seriesIndex][dataPointIndex]
-        var c = w.globals.seriesCandleC[seriesIndex][dataPointIndex]
-        return (
-          ''
-        )
-      }]
-    },
-    xaxis: {
-      type: 'datetime'
-    }
+  const getNewMA = (typeMA, nPeriods, arrayType) => {
+    dispatch(addMovingAverage(typeMA, nPeriods, arrayType));
   }
 
-  const initialPriceChart = {
-    symbol: '',
-    options: defaultOptions,
-    series: []
-  }
+  // var timeout1 = setTimeout(getNewMA, 15000, 'SMA', 20, priceObject.arrayTypes[3]);
+  // var timeout2 = setTimeout(getNewMA, 15000, 'EMA', 20, priceObject.arrayTypes[3]);
 
-  const [priceChart, setPriceChart]  = useState(initialPriceChart)
+  const deleteMA = (id) => {
+    dispatch(deleteMovingAverage(id))
+  }
+  // var timeout4 = setTimeout(deleteMA, 17000, 2);
 
   useEffect(() => {
+    dispatch(fetchPriceData(userSymbol, viewTimeframe));
 
-    const getResponse = async () => {
-      const response = await fetch("/get-url/30 seconds/AAVEWETH")
+  }, [dispatch]);
 
-      const data = await response.json();
+  const clearTimeouts = () => {
+    // clearTimeout(timeout1);
+    // clearTimeout(timeout2);
+    // clearTimeout(timeout3);
+  } 
 
-      const priceObject =  getPriceObject(data);
-      const timeframe = {
-        name: '30 minutes',
-        seconds: 30 * 60
+  const renderChart = () => {
+    if(loading) return <p>Loading price data...</p>
+    if(hasErrors) return <p>Unable to display chart</p>
+
+    const arrayOHLC = calculateArrayTimeframe(priceObject, viewTimeframe);
+
+    const candleData = calculateCandlestickData(arrayOHLC);
+
+    const priceSeries = [
+      {
+        id: 1,
+        name: chartObject.series[0].name,
+        type: 'candlestick',
+        data: candleData
       }
-      const arrayOHLC = priceObject.getPriceArray(timeframe);
+    ];
 
-      const arrayEMA20 = priceObject.getEMA(timeframe, 'close', 20);
-      const arraySMA20 = priceObject.getSMA(timeframe, 'close', 50);
+    console.log(chartObject.series)
 
-      const candleData = getCandleStickData(arrayOHLC);
-      const averageData20 = getLineData(arrayEMA20);
-      const averageData50 = getLineData(arraySMA20);
+    // Checking if there are moving average objects in the chartObject series
+    for(let series of chartObject.series) {
+      if(series.id > 1) {
+        let movingAverageData;
+        if(series.typeMA === 'SMA') {
+          movingAverageData = calculateSMAFromOHLC(arrayOHLC, series.nPeriods, series.arrayType);
+        } else if(series.typeMA === 'EMA') {
+          movingAverageData = calculateEMAFromOHLC(arrayOHLC, series.nPeriods, series.arrayType);
+        }
 
-      const priceSeries = [
-        {
-          name: 'line',
-          type: 'line',
-          data: averageData20
-        } , {
-          name: 'candle',
-          type: 'candlestick',
-          data: candleData
-        } , {
-            name: 'line',
-            type: 'line',
-            data: averageData50
-          }
-      ];
+        const movingAverageObject = {
+          name: series.name,
+          type: series.type,
+          data: movingAverageData
+        }
 
-      const newPriceChart = {
-        symbol: data.symbol,
-        options: defaultOptions,
-        series: priceSeries
+        priceSeries.push(movingAverageObject);
       }
-
-      setPriceChart(newPriceChart);
     }
 
-    getResponse()
-  }, [])
+    const priceChart = {
+      symbol: priceObject.symbol,
+      options: defaultChartOptions,
+      series: priceSeries
+    }
+
+    return (
+      <div>
+        <h1>{priceObject.symbol}</h1>
+        <Chart
+          options={priceChart.options}
+          series={priceChart.series}
+        />
+        {clearTimeouts()}
+      </div>
+    );
+  }
 
   return (
-          <div>
-            <h1>{priceChart.symbol}</h1>
-            <Chart
-              options={priceChart.options}
-              series={priceChart.series}
-            />
-          </div>
+    <div>
+      {renderChart()}
+    </div>
   )
 }
 
 export default PriceChart;
+
+    // const getResponse = async () => {
+    //   const response = await fetch("/get-url/30 seconds/AAVEWETH")
+
+    //   const data = await response.json();
+
+    //   const priceObject =  getPriceObject(data);
+    //   const timeframe = {
+    //     name: '30 minutes',
+    //     seconds: 30 * 60
+    //   }
+    //   const arrayOHLC = priceObject.getPriceArray(timeframe);
+
+    //   const arrayEMA20 = priceObject.getEMA(timeframe, 'close', 20);
+    //   const arraySMA20 = priceObject.getSMA(timeframe, 'close', 50);
+
+    //   const candleData = getCandleStickData(arrayOHLC);
+    //   const averageData20 = getLineData(arrayEMA20);
+    //   const averageData50 = getLineData(arraySMA20);
+
+    //   const priceSeries = [
+    //     {
+    //       id: 1,
+    //       name: 'line',
+    //       type: 'line',
+    //       data: averageData20
+    //     } , {
+    //       id: 2,
+    //       name: 'candle',
+    //       type: 'candlestick',
+    //       data: candleData
+    //     } , {
+    //       id: 3,
+    //       name: 'line',
+    //       type: 'line',
+    //       data: averageData50
+    //     }
+    //   ];
+
+    //   const newPriceChart = {
+    //     symbol: data.symbol,
+    //     options: defaultOptions,
+    //     series: priceSeries
+    //   }
+
+    //   setPriceChart(newPriceChart);
+    // }
+
+    // getResponse();

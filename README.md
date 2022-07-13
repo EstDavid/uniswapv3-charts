@@ -16,12 +16,34 @@
 - [X] Check if json object can include methods
 - [X] Create data downloader
 - [X] Create object data methods
-- [] Upload initial seed app to heroku and run
+- [X] Upload initial seed app to heroku and run
+    - [X] Create an express app, and inside it create the react app, in the client/ folder. See an example [here](https://daveceddia.com/deploy-react-express-app-heroku/)
+    - [X] In the client/package.json file add 
+    ```
+            "proxy": "http://localhost:5000",
+            "homepage": "https://uniswapv3-charts.herokuapp.com/",
+    ```
+    - [X] Text for the Procfile ```web: node index.js```
+    - [X] In the main package.json file add 
+    ```
+            "heroku-postbuild": "cd client && npm install && npm run build"
+    ```
+    - [X] IMPORTANT. From this [page](https://create-react-app.dev/docs/deployment/ "Deployment on React app docs") Add the following lines/functions to the index.js server file:
+    ```
+            var path = require('path');
+
+            app.use(express.static(path.join(__dirname, 'client/build')));
+
+            app.get('*', function (req, res) {
+            res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+            });
+    ```
 - [] Clean code in PriceChart.js
-    · [] Make data be propagated
-    · [] Allow addition/deletion of averages
-    · [] Study and use chart options
-    · [] Make this component a function of symbol, timeframe...
+    - [] Make data be propagated
+    - [] Allow addition/deletion of averages
+    - [] Study and use chart options
+    - [] Make this component a function of symbol, timeframe...
 - [] Create app structure (redux, components, etc)
 - [] Clean up boilerplate code on index.html
 - [] Prepare power point with logo, layout, etc...
+- [] Figure out how to update data as it is created

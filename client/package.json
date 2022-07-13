@@ -5,12 +5,14 @@
   "proxy": "http://localhost:5000",
   "homepage": "https://uniswapv3-charts.herokuapp.com/",
   "dependencies": {
+    "@reduxjs/toolkit": "^1.8.3",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^8.0.2",
     "react-scripts": "5.0.1",
     "serve": "^13.0.4",
     "web-vitals": "^2.1.4"

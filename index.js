@@ -35,7 +35,6 @@ const bucket = cloudStorage.bucket(bucketName);
 
 // DOWNLOAD FILE
 app.get("/get-url/:timeframe/:symbol", (req, res) => {
-    console.log('got a request')
     const file = bucket.file(`${req.params.timeframe}/${req.params.symbol}.json`);
 
     file.download((error, data) => {

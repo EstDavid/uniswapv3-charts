@@ -1,14 +1,14 @@
 # Main features of the app
-- [] Reading data from storage
-- [] Processing data for display
-    - [] Switch timeframes
-    - [] Add main averages and indicators
-- [] Display data
-    - [] Show several graphs? (2, 4..)
-    - [] Allow easy selection of pairs
-    - [] Display pool data (pair, liquidity, fee, address (link to Etherscan), link to Uniswap)
-    - [] Display carrousel with latest prices from most popular crypto pairs
-    - [] Pool list with most liquid pools and link to their graph
+- [ ] Reading data from storage
+- [ ] Processing data for display
+    - [ ] Switch timeframes
+    - [ ] Add main averages and indicators
+- [ ] Display data
+    - [ ] Show several graphs? (2, 4..)
+    - [ ] Allow easy selection of pairs
+    - [ ] Display pool data (pair, liquidity, fee, address (link to Etherscan), link to Uniswap)
+    - [ ] Display carrousel with latest prices from most popular crypto pairs
+    - [ ] Pool list with most liquid pools and link to their graph
 
 
 # Initial TODO list
@@ -38,22 +38,41 @@
             res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
             });
     ```
-- [] Clean code in PriceChart.js
+- [ ] Clean code in PriceChart.js
     - [X] Make data be propagated
     - [X] Allow addition/deletion of averages
-    - [] Study and use chart options
-    - [] Make this component a function of symbol, timeframe...
-- [] Create app structure (redux, components, etc)
-- [] Clean up boilerplate code on index.html
-- [] Prepare power point with logo, layout, etc...
-- [] Figure out how to update data as it is created
+    - [ ] Study and use chart options
+        - [ ] Control size of candles
+        - [ ] Take out 'Candlestick chart' text
+        - [ ] Is it easy to add color chooser?
+    - [ ] Make this component a function of symbol, timeframe...
+- [ ] Create app structure (redux, components, etc)
+- [ ] Clean up boilerplate code on index.html
+- [X] Prepare power point with logo, layout, etc...
+- [ ] Figure out how to update data as it is created
+- [ ] Create function to download all symbols
+    - [ ] It happens once the page is loaded
+    - [ ] Below the pairs sections the 'Loading...' spinner is shown
+- [X] Sidebar for pair selection
+    - [X] Add different pair groups
+    - [X] Add search field functionality
+- [ ] Add timeframe selection button group
+    - [ ] Create 'abbreviation' field on timeframes object
+- [ ] Indicators sidebar
+    - [ ] Add create indicator dialog with options
+    - [ ] Add indicator place holder with configure and cancel button
+    - [ ] Add ATR indicator
+- [ ] Navbar
+    - [ ] Add logo
+    - [ ] Add github button
+    - [X] Wire up search field
 
 ## Features to add
-- [] View liquidity history (this would have to be implemented in the reader as well)
-- [] Have 1 hour observations data (this would have to be implemented in the reader)
-- [] Download all the historical data (to be implemented in the reader)
-- [] Add the possibility of viewing your balance of each coin
-- [] How to update prices real time?
-- [] How to update symbol list?
-- [] Add token logos
-- [] Use localStorage to save user settings
+- [ ] View liquidity history (this would have to be implemented in the reader as well)
+- [ ] Have 1 hour observations data (this would have to be implemented in the reader)
+- [ ] Download all the historical data (to be implemented in the reader)
+- [ ] Add the possibility of viewing your balance of each coin
+- [ ] How to update prices real time?
+- [ ] How to update symbol list?
+- [ ] Add token logos
+- [ ] Use localStorage to save user settings

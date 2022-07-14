@@ -39,11 +39,21 @@
             });
     ```
 - [] Clean code in PriceChart.js
-    - [] Make data be propagated
-    - [] Allow addition/deletion of averages
+    - [X] Make data be propagated
+    - [X] Allow addition/deletion of averages
     - [] Study and use chart options
     - [] Make this component a function of symbol, timeframe...
 - [] Create app structure (redux, components, etc)
 - [] Clean up boilerplate code on index.html
 - [] Prepare power point with logo, layout, etc...
 - [] Figure out how to update data as it is created
+
+## Features to add
+- [] View liquidity history (this would have to be implemented in the reader as well)
+- [] Have 1 hour observations data (this would have to be implemented in the reader)
+- [] Download all the historical data (to be implemented in the reader)
+- [] Add the possibility of viewing your balance of each coin
+- [] How to update prices real time?
+- [] How to update symbol list?
+- [] Add token logos
+- [] Use localStorage to save user settings

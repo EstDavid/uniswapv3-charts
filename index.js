@@ -37,17 +37,43 @@ const bucket = cloudStorage.bucket(bucketName);
 app.get("/get-url/:timeframe/:symbol", (req, res) => {
     const file = bucket.file(`${req.params.timeframe}/${req.params.symbol}.json`);
 
+    // console.log(file)
+
     file.download((error, data) => {
         res.status(200).send(data)
     });
 });
 
+// DOWNLOAD ALL FILENAMES AND CLASSIFY PAIRS ACCORDING TO QUOTE TOKEN
+app.get("/get-symbols/:timeframe/", (req, res) => {
+  const options = {
+    prefix: `${req.params.timeframe}/`,
+  };
+
+  bucket.getFiles(options).then((response) => {
+    const [files] = response;
+    const fileNames = [];
+
+    files.map((file) => {
+      // The file name returned by calling file.name is the complete path of the file:
+      // e.g.: /30 seconds/WETHUSDC.json
+      // The string.substring() function is used to get the symbol out of the file name
+      let startCharacter = options.prefix.length;
+      let endCharacter = file.name.length - '.json'.length;
+      let symbol = file.name.substring(startCharacter, endCharacter);
+      fileNames.push(symbol);
+    });
+
+    res.status(200).send(fileNames);      
+  })
+});
+
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.get('*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'client/public', 'index.html'));
 });
 
 app.listen(port, () => {
     console.log(`Storage downloader listening at http://localhost:${port}`);
-  });
+});

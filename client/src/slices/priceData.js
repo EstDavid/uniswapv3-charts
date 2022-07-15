@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {calculateArrayTimeframe, calculateCandlestickData} from '../helpers/priceDataCalculator';
 import {timeframes} from '../helpers/timeframes';
-import {defaultChartOptions} from '../helpers/chartOptions';
 
 export const initialState = {
     loading: true,

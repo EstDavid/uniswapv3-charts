@@ -72,3 +72,12 @@ export const timeframes = {
         seconds: 1 * 24 * 60 * 60,
     }
 }
+
+export const topTimeframes = [
+    'minutes5',
+    'minutes15',
+    'minutes30',
+    'hours1',
+    'hours4',
+    'days1'
+]

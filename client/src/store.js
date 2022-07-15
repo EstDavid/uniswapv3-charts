@@ -1,10 +1,12 @@
 import {configureStore} from '@reduxjs/toolkit';
 import priceDataReducer from './slices/priceData';
-import priceObjectReducer from './slices/priceObject';
+import pairsListsReducer from './slices/pairsLists';
+import indicatorConfigReducer from './slices/indicatorConfig';
 
 export const store = configureStore({
     reducer: {
         priceData: priceDataReducer,
-        priceObject: priceObjectReducer
+        pairsLists: pairsListsReducer,
+        indicatorConfig: indicatorConfigReducer
     }
 });

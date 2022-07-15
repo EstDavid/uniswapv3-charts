@@ -12,6 +12,16 @@ code {
     monospace;
 }
 
+/* AD-HOC CUSTOM PROPERTIES*/
+.text-end i {
+  font-size: large;
+  margin-right: 10px
+}
+
+.btn-outline-primary {
+  width: 4em;
+}
+
 /* PROPERTIES FROM BOOTSTRAP'S sidebars.css*/
 
 .bi {

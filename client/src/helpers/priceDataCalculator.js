@@ -89,8 +89,8 @@ export const calculateCandlestickData = (arrayOHLC) => {
 
 export const calculateSMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
     let priceArray = getPriceArray(arrayOHLC, arrayType)
-    let arraySMA = {};
     let lineData = [];
+    let initialTimestamp;
     let timestampsArray = [];
     for(let timestamp in priceArray) {
         timestampsArray.push(parseInt(timestamp));
@@ -111,17 +111,18 @@ export const calculateSMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
                 return accumVariable + curValue
             }, 0);
             
-            arraySMA[timestamp] = sum / nPeriods;
-            lineData.push({x: new Date(timestamp * 1000), y: sum / nPeriods});
+            lineData.push(sum / nPeriods);
+
+            if(initialTimestamp === undefined) { initialTimestamp = timestamp }
         };
     }
-    return lineData;
+    return {lineData, initialTimestamp};
 }
 
 export const calculateEMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
     let priceArray = getPriceArray(arrayOHLC, arrayType)
-    let arrayEMA = {};
     let lineData = [];
+    let initialTimestamp;
     let k = 2 / (nPeriods + 1);
     let timestampsArray = [];
     for(let timestamp in priceArray) {
@@ -144,10 +145,30 @@ export const calculateEMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
         else {
             ema =  priceArray[timestamp] * k + ema * (1 - k);
         }
-        arrayEMA[timestamp] = ema;
-        lineData.push({x: new Date(timestamp * 1000), y: ema});
+        lineData.push(ema);
+
+        if(initialTimestamp === undefined) { initialTimestamp = timestamp }
+
     }
-    return lineData;
+    return {lineData, initialTimestamp};
+}
+
+export const getChartingData = (dataObject, arrayOHLC) => {
+    const chartingData = [];
+    let timestampsArray = [];
+    for(let timestamp in arrayOHLC) {
+        timestampsArray.push(parseInt(timestamp));
+    }
+    timestampsArray.sort((a, b) => a - b);
+    let j = 0;
+    for(let i = 0; i < timestampsArray.length; i += 1) {
+        let timestamp = timestampsArray[i];
+        if(timestamp >= dataObject.initialTimestamp) {
+            chartingData.push({ x: new Date(timestamp * 1000), y: dataObject.lineData[j]});
+            j += 1;
+        }
+    }
+    return chartingData;
 }
 
 const getPriceArray = (arrayOHLC, arrayType) => {

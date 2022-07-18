@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {timeframes} from '../helpers/timeframes';
+import {calculateArrayTimeframe, calculateSMAFromOHLC, calculateEMAFromOHLC} from '../helpers/priceDataCalculator';
 
 export const initialState = {
     loading: true,
@@ -17,7 +18,7 @@ export const initialState = {
         startTimestamp: undefined,
         endTimestamp: undefined,
         observations: {},
-        priceArraysOHLC: {}
+        arrayOHLC: {}
     },
     chartObject: {
         symbol: '',
@@ -27,7 +28,8 @@ export const initialState = {
                 id: 1,
                 name: '',
                 type: 'candlestick',
-                data: []
+                typeMA: '',
+                data: {}
             }
         ]
     }
@@ -62,6 +64,26 @@ export const priceDataSlice = createSlice({
             state.priceObject.observations = payload.observations;
             state.loadingPriceObject = false;
         },
+        setArrayOHLC: (state ) => {
+            const arrayOHLC = calculateArrayTimeframe( state.priceObject, state.viewTimeframe );
+
+            state.priceObject.arrayOHLC = arrayOHLC;
+            
+            state.chartObject.series.map((series) => {
+                if(series.id > 1) {
+                    
+                    const {nPeriods, arrayType} = series;
+                    
+                    const nPeriodsNumber = parseInt(nPeriods);
+
+                    if (series.typeMA === 'SMA') {
+                        series.data = calculateSMAFromOHLC(arrayOHLC, nPeriodsNumber, arrayType);
+                    } else if (series.typeMA === 'EMA') {
+                        series.data = calculateEMAFromOHLC(arrayOHLC, nPeriodsNumber, arrayType);
+                    }
+                }
+            });
+        },
         initChartObject: (state) => {
             state.chartObject.symbol = state.priceObject.symbol;
             state.chartObject.series[0].name = `${state.priceObject.symbol} ${state.viewTimeframe.name}`
@@ -71,18 +93,38 @@ export const priceDataSlice = createSlice({
         },
         createMovingAverage: (state, {payload}) => {
             state.chartObject.lastId += 1;
-            const movingAverageObject = {
+            const dataObject = {
                 id: state.chartObject.lastId,
                 name: `${payload.nPeriods} ${payload.typeMA}`,
                 type: 'line',
                 typeMA: payload.typeMA,
-                nPeriods: payload.nPeriods,
-                arrayType: payload.arrayType
+                nPeriods: parseInt(payload.nPeriods),
+                arrayType: payload.arrayType,
+                data: payload.data
             }
-            state.chartObject.series.push(movingAverageObject);
+            state.chartObject.series.push(dataObject);
         },
         removeMovingAverage: (state, {payload}) => {
             state.chartObject.series = state.chartObject.series.filter((series) => series.id !== payload);
+        },
+        updateIndicatorSettings: (state, {payload}) => {
+            const index = state.chartObject.series.findIndex(dataObject => {
+                return dataObject.id === payload.id;
+              }); 
+
+            state.chartObject.series[index].name = `${payload.nPeriods} ${payload.typeMA}`;
+            state.chartObject.series[index].type = payload.type;
+            state.chartObject.series[index].typeMA = payload.typeMA;
+            state.chartObject.series[index].nPeriods = parseInt(payload.nPeriods);
+            state.chartObject.series[index].arrayType = payload.arrayType;
+            state.chartObject.series[index].data = payload.data;
+
+        },
+        updateIndicatorData: (state, {payload}) => {
+            const index = state.chartObject.series.findIndex(dataObject => {
+                return dataObject.id === payload.id;
+              });
+            state.chartObject.series[index].data = payload.data;
         }
     }
 });
@@ -95,9 +137,13 @@ export const {
     getPriceDataFailure,
     initPriceObject,
     initChartObject,
+    setArrayOHLC,
     switchTimeframe,
     createMovingAverage,
-    removeMovingAverage
+    removeMovingAverage,
+    updateIndicatorSettings,
+    updateIndicatorData,
+    eraseIndicatorsData
 } = priceDataSlice.actions;
 
 // export selector
@@ -122,6 +168,8 @@ export function fetchPriceData(symbol) {
 
             dispatch(initChartObject());
 
+            dispatch(setArrayOHLC());
+
         } catch(error) {
             dispatch(getPriceDataFailure())
         }
@@ -132,18 +180,31 @@ export function changeTimeframe(timeframe) {
     return async (dispatch) => {
         dispatch(switchTimeframe(timeframe));
         dispatch(initChartObject());
-
+        dispatch(setArrayOHLC());
     }
 }
 
-export function addMovingAverage(typeMA, nPeriods, arrayType) {
+export function addMovingAverage(indicatorObject) {
     return async (dispatch) => {
-        dispatch(createMovingAverage({typeMA, nPeriods, arrayType}));
+        dispatch(createMovingAverage(indicatorObject));
     }
 }
 
 export function deleteMovingAverage(id) {
     return async (dispatch) => {
         dispatch(removeMovingAverage(id));
+    }
+}
+
+export function updateExistingIndicator(indicatorObject) {
+    return async (dispatch) => {
+        dispatch(updateIndicatorSettings(indicatorObject));
+    }
+}
+
+export function updateSeriesData(id, data) {
+    return async (dispatch) => {
+        console.log('new data!')
+        dispatch(updateIndicatorData({id, data}));
     }
 }

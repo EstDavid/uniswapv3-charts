@@ -2,7 +2,7 @@ import React  from 'react';
 import Navbar from './components/Navbar';
 import PriceChart from './components/PriceChart';
 import PairsSidebar from './components/PairsSidebar';
-import IndicatorCreator from './components/IndicatorCreator';
+import IndicatorSidebar from './components/IndicatorSidebar';
 
 function App() {
   return (
@@ -10,10 +10,10 @@ function App() {
       <Navbar />
       <div className="container-fluid">
         <div className="row">
-          <div className="col-sm-2">
-            <IndicatorCreator />
+          <div className="col-sm-3">
+            <IndicatorSidebar />
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-7">
             <PriceChart />
           </div>
           <div className="col-sm-2">

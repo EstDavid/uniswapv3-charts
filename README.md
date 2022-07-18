@@ -51,20 +51,26 @@
 - [X] Prepare power point with logo, layout, etc...
 - [ ] Figure out how to update data as it is created
 - [ ] Create function to download all symbols
-    - [ ] It happens once the page is loaded
+    - [X] It happens once the page is loaded
     - [ ] Below the pairs sections the 'Loading...' spinner is shown
 - [X] Sidebar for pair selection
     - [X] Add different pair groups
     - [X] Add search field functionality
-- [ ] Add timeframe selection button group
-    - [ ] Create 'abbreviation' field on timeframes object
+- [X] Add timeframe selection button group
+    - [X] Create 'abbreviation' field on timeframes object
 - [ ] Indicators sidebar
-    - [ ] Add create indicator dialog with options
-    - [ ] Add indicator place holder with configure and cancel button
+    - [X] Add create indicator dialog with options
+    - [X] Add indicator place holder with configure and cancel button
     - [ ] Add ATR indicator
+    - [ ] Add _Visibility_ button
+    - [ ] Add color selector
+    - [X] Store moving average data, so it is only processed and updated when needed
+    - [ ] Add array ```['open', 'high', 'low', 'close']``` selector
+    - [ ] Styling
+        - Align _Submit_ and _Cancel_ buttons on the same line
 - [ ] Navbar
     - [ ] Add logo
-    - [ ] Add github button
+    - [X] Add github button
     - [X] Wire up search field
 
 ## Features to add

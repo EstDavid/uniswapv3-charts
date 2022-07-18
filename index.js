@@ -68,10 +68,10 @@ app.get("/get-symbols/:timeframe/", (req, res) => {
   })
 });
 
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, process.env.HTML_FOLDER)));
 
 app.get('*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'client/public', 'index.html'));
+  res.sendFile(path.join(__dirname, process.env.HTML_FOLDER, 'index.html'));
 });
 
 app.listen(port, () => {

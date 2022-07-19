@@ -11,7 +11,7 @@ const PairsList = (props) => {
     } = useSelector(priceDataSelector);
 
     const {
-        pairsListLoading,
+        pairsListsLoading,
         pairsListError,
         pairsLists,
         searchPairsLists,
@@ -39,13 +39,15 @@ const PairsList = (props) => {
 
     return (
         <li className="mb-1" key={props.idNumber}>
-            <button className="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target={`#dashboard-collapse-${props.idNumber}`} aria-expanded="false">
+            <button 
+                className="btn btn-toggle align-items-center rounded collapsed"
+                data-bs-toggle="collapse" data-bs-target={`#dashboard-collapse-${props.idNumber}`}
+                aria-expanded="false"
+                disabled={pairsListsLoading}
+            >
                 {props.listName}
             </button>
-            {pairsListLoading ? 
-                <h2>Loading pairs...</h2>
-            :
-                <div className="collapse" id={`dashboard-collapse-${props.idNumber}`}>
+            <div className="collapse" id={`dashboard-collapse-${props.idNumber}`}>
                     <input 
                         type="text"
                         placeholder={`Search ${props.listSymbol} symbol...`}
@@ -58,8 +60,7 @@ const PairsList = (props) => {
                             return <li key={index}><a href="#" className="link-dark rounded" onClick={selectSymbol}>{symbol}</a></li>
                         })}
                     </ul>
-                </div>
-            }
+            </div>
 
         </li>
     )

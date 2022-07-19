@@ -42,17 +42,17 @@
     - [X] Make data be propagated
     - [X] Allow addition/deletion of averages
     - [ ] Study and use chart options
-        - [ ] Control size of candles
-        - [ ] Take out 'Candlestick chart' text
+        - [X] Control size of candles
+        - [X] Take out 'Candlestick chart' text
         - [ ] Is it easy to add color chooser?
-    - [ ] Make this component a function of symbol, timeframe...
-- [ ] Create app structure (redux, components, etc)
+    - [X] Make this component a function of symbol, timeframe...
+- [X] Create app structure (redux, components, etc)
 - [ ] Clean up boilerplate code on index.html
 - [X] Prepare power point with logo, layout, etc...
 - [ ] Figure out how to update data as it is created
-- [ ] Create function to download all symbols
+- [X] Create function to download all symbols
     - [X] It happens once the page is loaded
-    - [ ] Below the pairs sections the 'Loading...' spinner is shown
+    - [X] Below the pairs sections the 'Loading...' spinner is shown
 - [X] Sidebar for pair selection
     - [X] Add different pair groups
     - [X] Add search field functionality
@@ -62,12 +62,12 @@
     - [X] Add create indicator dialog with options
     - [X] Add indicator place holder with configure and cancel button
     - [ ] Add ATR indicator
-    - [ ] Add _Visibility_ button
+    - [X] Add _Visibility_ button
     - [ ] Add color selector
     - [X] Store moving average data, so it is only processed and updated when needed
-    - [ ] Add array ```['open', 'high', 'low', 'close']``` selector
+    - [X] Add array ```['open', 'high', 'low', 'close']``` selector
     - [ ] Styling
-        - Align _Submit_ and _Cancel_ buttons on the same line
+        - [X]Align _Submit_ and _Cancel_ buttons on the same line
 - [ ] Navbar
     - [ ] Add logo
     - [X] Add github button
@@ -82,3 +82,4 @@
 - [ ] How to update symbol list?
 - [ ] Add token logos
 - [ ] Use localStorage to save user settings
+- [ ] Responsivity

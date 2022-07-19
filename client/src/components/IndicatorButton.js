@@ -10,7 +10,7 @@ import {priceDataSelector} from '../slices/priceData';
 const IndicatorButton = (props) => {
     const dispatch = useDispatch();
 
-    const {priceObject} = useSelector(priceDataSelector);
+    const {loading, indicatorsLimit, priceObject, chartObject} = useSelector(priceDataSelector);
 
     const { showIndicatorDialog, configuringIndicator } = useSelector(indicatorConfigSelector);
     
@@ -21,10 +21,21 @@ const IndicatorButton = (props) => {
         }
     }
 
+    const indicatorLimitReached = chartObject.series.length - 1 >= indicatorsLimit;
+
     return(
-        <button className="btn btn-primary" id="add-indicator" aria-expanded={showIndicatorDialog} onClick={handleToggle}> 
-            {props.buttonText}
-        </button>
+        <div className="mb-2">
+            <button 
+                className="btn btn-primary"
+                id="add-indicator"
+                aria-expanded={showIndicatorDialog}
+                onClick={handleToggle}
+                disabled={loading || indicatorLimitReached} > 
+                {props.buttonText}
+            </button>
+            <br></br>
+            {indicatorLimitReached ? <small className="text-muted">Max number of indicators reached</small> : ''}
+        </div>
     )
 
 }

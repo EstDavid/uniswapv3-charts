@@ -33,7 +33,7 @@ const TimeframeSelector = () => {
     }
 
     return (
-        <div className="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <div className="btn-group btn-group-sm" role="group" aria-label="Button group with nested dropdown">
             {topTimeframes.map((key, index) => {
                 let timeframe = timeframes[key];
                 let abbreviation = abbreviateName(timeframe.name);
@@ -47,7 +47,7 @@ const TimeframeSelector = () => {
                 )
             })}
 
-            <div className="btn-group" role="group">
+            <div className="btn-group btn-group-sm" role="group">
                 <button
                     id="btnGroupDrop1"
                     type="button"

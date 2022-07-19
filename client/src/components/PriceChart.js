@@ -4,32 +4,18 @@ import Chart from "react-apexcharts";
 import TimeframeSelector from './TimeframeSelector';
 import { 
   fetchPriceData,
-  changeTimeframe,
-  addMovingAverage,
   priceDataSelector,
-  deleteMovingAverage,
-  updateSeriesData,
-  updateArrayOHLC
 } from '../slices/priceData';
-import {indicatorConfigSelector, updateCurrentData} from '../slices/indicatorConfig';
-
-import {timeframes} from '../helpers/timeframes';
+import {indicatorConfigSelector} from '../slices/indicatorConfig';
 
 import {
-  calculateArrayTimeframe,
   calculateCandlestickData,
-  calculateSMAFromOHLC,
-  calculateEMAFromOHLC,
   getChartingData
 } from '../helpers/priceDataCalculator';
 import {defaultChartOptions} from '../helpers/chartOptions';
 
 // Temporary parameters derived from user interaction
 const userSymbol = 'AAVEWETH';
-const userViewTimeframe = 'days1';
-const userArrayType = 'close';
-const userMAPeriods1 = 20;
-const userMAType1 = 'EMA';
 
 const PriceChart = () => {
   const dispatch = useDispatch();
@@ -46,19 +32,6 @@ const PriceChart = () => {
   const arrayOHLC = priceObject.arrayOHLC;
 
   const {configuringIndicator, currentIndicator} = useSelector(indicatorConfigSelector);
-
-  const getNewTimeframe = (timeframeKey) => {
-    dispatch(changeTimeframe(timeframes[timeframeKey]));
-  }
-
-  const getNewMA = (typeMA, nPeriods, arrayType) => {
-    dispatch(addMovingAverage(typeMA, nPeriods, arrayType));
-  }
-
-
-  const deleteMA = (id) => {
-    dispatch(deleteMovingAverage(id))
-  }
 
   useEffect(() => {
     dispatch(fetchPriceData(userSymbol, viewTimeframe));

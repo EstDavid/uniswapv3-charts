@@ -4,6 +4,7 @@ import {
     cancelConfiguration,
     selectIndicatorType,
     selectNPeriods,
+    selectArrayType,
     toggleDialog,
     indicatorConfigSelector
 } from '../slices/indicatorConfig';
@@ -25,6 +26,10 @@ const IndicatorSettings = (props) => {
         dispatch(selectNPeriods(event.target.value, priceObject.arrayOHLC));
     }
 
+    const handleArrayTypeChange = (event) => {
+        dispatch(selectArrayType(event.target.value, priceObject.arrayOHLC))
+    }
+
     const handleSubmit = (event) => {
         event.preventDefault();
         if(currentIndicator.id === 0) {
@@ -42,51 +47,69 @@ const IndicatorSettings = (props) => {
     }
 
     return(
-        <div className="row mb-2">
+        <div className="mb-2">
         {showIndicatorDialog && currentIndicator.id === props.indicatorId ? 
             <form aria-labelledby="btnGroupDrop1" onSubmit={handleSubmit}>
                 <fieldset>
-                    <div className="form-group col-sm-2">
+                    <div className="d-flex align-items-center justify-content-between">
                         {indicators.map((indicator, index) => {
                             return (
-                                <div className="form-check" key={index}>
-                                    <input 
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="gridRadios"
-                                        id={`gridRadios1${index}`}
-                                        value={indicator}
-                                        onChange={handleRadioChange}
-                                        checked={indicator === currentIndicator.typeMA ? true : false}
-                                    ></input>
-                                    <label className="form-check-label" htmlFor={`gridRadios1${index}`}>
-                                        {indicator}
-                                    </label>
-                                </div>
+                                    <div key={index} className="form-check mt-2">
+                                        <input 
+                                            className="form-check-input"
+                                            type="radio"
+                                            name="gridRadios"
+                                            id={`gridRadios1${index}`}
+                                            value={indicator}
+                                            onChange={handleRadioChange}
+                                            checked={indicator === currentIndicator.typeMA ? true : false}
+                                        ></input>
+                                        <label className="form-check-label" htmlFor={`gridRadios1${index}`}>
+                                            {indicator}
+                                        </label>
+                                    </div>
                             )
 
                         })}
                     </div>
                 </fieldset>
-                <div className="form-group">
-                    <label htmlFor="number-periods" className="col-form-label">Number of periods</label>
-                    <input 
-                        type="number"
-                        className="form-control"
-                        id="number-periods"
-                        value={currentIndicator.nPeriods}
-                        onChange={handleNPeriodsChange}
-                    ></input>
+                <div className="d-flex align-items-center justify-content-between">
+                        <label htmlFor={`number-periods-${currentIndicator.id}`} className="col-form-label col-form-label-sm">Candles number</label>
+                       <label htmlFor={`array-type-${currentIndicator.id}`} className="col-form-label col-form-label-sm">Price array</label>
                 </div>
                 <div className="row">
-                    <button type="submit" className="btn btn-primary btn-block"
-                        disabled={currentIndicator.nPeriods === ''}
+                    <div className="col">
+                        <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            id={`number-periods-${currentIndicator.id}`}
+                            value={currentIndicator.nPeriods}
+                            onChange={handleNPeriodsChange}
+                        ></input>
+                    </div>
+                    <div className="col">
+                        <select
+                            className="form-select form-select-sm"
+                            aria-label="Array select"
+                            id={`array-type-${currentIndicator.id}`}
+                            defaultValue={currentIndicator.arrayType}
+                            onChange={handleArrayTypeChange}>
+                            {priceObject.arrayTypes.map((type, index) => {
+                                return <option key={index} value={type}>{type}</option>
+                            })}
+                        </select>
+                    </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between mt-3">
+                        <button type="submit" className="btn btn-primary btn-settings btn-sm"
+                            style={{float: 'left'}}
+                            disabled={currentIndicator.nPeriods === ''}
                         >{props.buttonText}</button>
-                    <button className="btn btn-secondary btn-block" onClick={handleCancel}>Cancel</button>
+                        <button className="btn btn-secondary btn-settings btn-sm" style={{float: 'right'}} onClick={handleCancel}>Cancel</button>
                 </div>
             </form>
          :
-          <h1></h1>}
+          ''}
         </div>
     )
 

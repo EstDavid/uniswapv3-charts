@@ -15,7 +15,8 @@ export const initialState = {
         typeMA: 'EMA',
         nPeriods: '20',
         arrayType: 'close',
-        data: {}      
+        data: {},
+        visible: true    
     }
 }
 
@@ -28,6 +29,9 @@ export const indicatorConfigSlice = createSlice({
         },
         changeCurrentNPeriods: (state, {payload}) => {
             state.currentIndicator.nPeriods = payload;
+        },
+        changeCurrentArrayType: (state, {payload}) => {
+            state.currentIndicator.arrayType = payload;
         },
         changeCurrentData: (state, {payload}) => {
             const {nPeriods, typeMA, arrayType} = state.currentIndicator;
@@ -67,6 +71,7 @@ export const indicatorConfigSlice = createSlice({
             state.currentIndicator.typeMA = payload.typeMA;
             state.currentIndicator.nPeriods = payload.nPeriods;
             state.currentIndicator.type = payload.type;
+            state.currentIndicator.arrayType = payload.arrayType;
         },
     }
 });
@@ -76,6 +81,7 @@ export const indicatorConfigSlice = createSlice({
 export const {
     changeCurrentIndicatorType,
     changeCurrentNPeriods,
+    changeCurrentArrayType,
     changeCurrentData,
     createNewIndicator,
     resetConfiguration,
@@ -100,6 +106,13 @@ export function selectIndicatorType(indicatorType, arrayOHLC) {
 export function selectNPeriods(nPeriods, arrayOHLC) {
     return async (dispatch) => {
         dispatch(changeCurrentNPeriods(nPeriods));
+        dispatch(changeCurrentData(arrayOHLC));
+    }
+}
+
+export function selectArrayType(arrayType, arrayOHLC) {
+    return async (dispatch) => {
+        dispatch(changeCurrentArrayType(arrayType));
         dispatch(changeCurrentData(arrayOHLC));
     }
 }

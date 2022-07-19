@@ -38,7 +38,9 @@ const PriceChart = () => {
     hasErrors,
     priceObject,
     chartObject,
-    viewTimeframe
+    viewTimeframe,
+    maxCandlesNumber,
+    indicatorColors
   } = useSelector(priceDataSelector);
 
   const arrayOHLC = priceObject.arrayOHLC;
@@ -86,12 +88,12 @@ const PriceChart = () => {
         // the use the currentIndicator state variable
         // Otherwise use the default configuration stored in the state
         if(configuringIndicator && currentIndicator.id === series.id) {
-          series = currentIndicator;          
+          series = currentIndicator;    
         }
 
-        const {name, type, data} = series;    
+        const {name, type, data, visible} = series;    
 
-        const chartingData = getChartingData(data, arrayOHLC);
+        const chartingData = visible ? getChartingData(data, arrayOHLC) : [];
 
         const movingAverageObject = {
           name: name,
@@ -119,17 +121,27 @@ const PriceChart = () => {
 
       priceSeries.push(movingAverageObject);
     } 
-    
+
+
+    const chartOptionsXmax = candleData[candleData.length -1][0];
+    const chartOptionsXmin = candleData[Math.max(0, candleData.length - maxCandlesNumber)][0];
 
     const priceChart = {
       symbol: priceObject.symbol,
-      options: defaultChartOptions,
+      options: defaultChartOptions(chartOptionsXmin, chartOptionsXmax, indicatorColors),
       series: priceSeries
     }
 
     return (
       <div>
-        <h1>{priceObject.symbol}</h1>
+        <div className="row">
+
+        <h1>{priceObject.symbol}
+        <span>  </span>
+        <img src="https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png?1601374110" style={{height: "80%"}}></img>/
+        <img src="https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295" style={{height: "80%"}}></img></h1>
+        
+        </div>
         <TimeframeSelector />
         <Chart
           options={priceChart.options}

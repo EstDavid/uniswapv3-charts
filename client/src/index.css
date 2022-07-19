@@ -22,6 +22,22 @@ code {
   width: 4em;
 }
 
+.color-line {
+  height: 1px;
+  background: black;
+}
+
+.btn-settings {
+  left: 0px;
+  height:100%;
+  width:max-content;
+}
+
+.col-form-label {
+  text-align:center;
+  vertical-align:middle;
+}
+
 /* PROPERTIES FROM BOOTSTRAP'S sidebars.css*/
 
 .bi {

@@ -72,16 +72,8 @@ export const calculateCandlestickData = (arrayOHLC) => {
     let candlestickData = [];
     let timestamps = Object.keys(arrayOHLC);
     for(let timestamp of timestamps) {
-      let pricePoint = {};
       let priceOHLC = arrayOHLC[timestamp];
-      pricePoint.x = new Date(timestamp * 1000);
-      pricePoint.y = [
-        priceOHLC.open,
-        priceOHLC.high,
-        priceOHLC.low,
-        priceOHLC.close
-      ];
-      candlestickData.push(pricePoint);
+      candlestickData.push([timestamp * 1000,[priceOHLC.open, priceOHLC.high, priceOHLC.low, priceOHLC.close]]);
     }
   
     return candlestickData;
@@ -164,7 +156,7 @@ export const getChartingData = (dataObject, arrayOHLC) => {
     for(let i = 0; i < timestampsArray.length; i += 1) {
         let timestamp = timestampsArray[i];
         if(timestamp >= dataObject.initialTimestamp) {
-            chartingData.push({ x: new Date(timestamp * 1000), y: dataObject.lineData[j]});
+            chartingData.push([ timestamp * 1000, dataObject.lineData[j]]);
             j += 1;
         }
     }

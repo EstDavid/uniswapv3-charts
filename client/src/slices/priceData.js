@@ -5,8 +5,11 @@ import {calculateArrayTimeframe, calculateSMAFromOHLC, calculateEMAFromOHLC} fro
 export const initialState = {
     loading: true,
     hasErrors: false,
+    indicatorsLimit: 5,
     viewTimeframe: timeframes['minutes30'],
     priceDataRaw: {},
+    maxCandlesNumber: 75,
+    indicatorColors: ['#FFD700', '#1E90FF', '#FF4500','#008000', '#FFD700', '#FF0000'],
     priceObject: {
         symbol: '',
         baseToken: {},
@@ -29,7 +32,8 @@ export const initialState = {
                 name: '',
                 type: 'candlestick',
                 typeMA: '',
-                data: {}
+                data: {},
+                visible: true
             }
         ]
     }
@@ -100,7 +104,8 @@ export const priceDataSlice = createSlice({
                 typeMA: payload.typeMA,
                 nPeriods: parseInt(payload.nPeriods),
                 arrayType: payload.arrayType,
-                data: payload.data
+                data: payload.data,
+                visible: true
             }
             state.chartObject.series.push(dataObject);
         },
@@ -125,6 +130,14 @@ export const priceDataSlice = createSlice({
                 return dataObject.id === payload.id;
               });
             state.chartObject.series[index].data = payload.data;
+        },
+        updateVisibility: (state, {payload}) => {
+            const index = state.chartObject.series.findIndex(dataObject => {
+                return dataObject.id === payload;
+              });
+
+            state.chartObject.series[index].visible = 
+                !state.chartObject.series[index].visible;
         }
     }
 });
@@ -143,7 +156,7 @@ export const {
     removeMovingAverage,
     updateIndicatorSettings,
     updateIndicatorData,
-    eraseIndicatorsData
+    updateVisibility
 } = priceDataSlice.actions;
 
 // export selector
@@ -158,7 +171,7 @@ export function fetchPriceData(symbol) {
         dispatch(getPriceData());
 
         try {
-            const response = await fetch(`/get-url/30 seconds/${symbol}`);
+            const response = await fetch(`http://localhost:5000/get-url/30 seconds/${symbol}`);
 
             const data = await response.json();
 
@@ -204,7 +217,12 @@ export function updateExistingIndicator(indicatorObject) {
 
 export function updateSeriesData(id, data) {
     return async (dispatch) => {
-        console.log('new data!')
         dispatch(updateIndicatorData({id, data}));
+    }
+}
+
+export function toggleVisibility(id) {
+    return async (dispatch) => {
+        dispatch(updateVisibility(id));
     }
 }

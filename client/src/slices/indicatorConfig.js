@@ -16,7 +16,8 @@ export const initialState = {
         nPeriods: '20',
         arrayType: 'close',
         data: {},
-        visible: true    
+        visible: true,
+        color: '#FFD700'
     }
 }
 

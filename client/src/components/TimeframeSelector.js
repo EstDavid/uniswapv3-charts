@@ -41,7 +41,7 @@ const TimeframeSelector = () => {
                     <button
                         key={index}
                         type="button"
-                        className={`btn btn-outline-primary${timeframe === viewTimeframe ? ' active' : ''}`}
+                        className={`btn btn-sm btn-outline-primary${timeframe === viewTimeframe ? ' active' : ''}`}
                         onClick={() => timeframeClick(timeframe)}
                     >{abbreviation}</button>
                 )
@@ -51,7 +51,7 @@ const TimeframeSelector = () => {
                 <button
                     id="btnGroupDrop1"
                     type="button"
-                    className="btn btn-primary dropdown-toggle"
+                    className="btn btn-sm btn-primary dropdown-toggle"
                     data-bs-toggle="dropdown"
                     aria-expanded="false">
                     {toptimeframeSelected() ? 'More' : abbreviateName(viewTimeframe.name)}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { OnboardingButton } from './Onboarding';
 import { filterInput, pairsListsSelector } from '../slices/pairsLists';
 import { fetchPriceData, priceDataSelector} from '../slices/priceData';
 
@@ -74,7 +75,7 @@ const filterSymbols = (event) => {
               target="_blank"
               rel="noreferrer noopener"
             ><i className="bi bi-github"></i>View on Github</a>
-            <button type="button" className="btn btn-warning">Sign-up</button>
+            <OnboardingButton />
           </div>
         </div>
       </div>

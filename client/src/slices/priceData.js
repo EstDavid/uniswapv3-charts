@@ -6,10 +6,19 @@ export const initialState = {
     loading: true,
     hasErrors: false,
     indicatorsLimit: 5,
-    viewTimeframe: timeframes['minutes30'],
+    viewTimeframe: timeframes['hours1'],
     priceDataRaw: {},
-    maxCandlesNumber: 75,
-    indicatorColors: ['#FFD700', '#1E90FF', '#FF4500','#008000', '#FFD700', '#FF0000'],
+    maxCandlesNumber: 150,
+    indicatorColors: [ 
+        '#000000',
+        '#0000FF',
+        '#1E90FF',
+        '#D2691E',
+        '#008000',
+        '#FFD700',
+        '#FF0000',
+        '#FF1493'
+    ],
     priceObject: {
         symbol: '',
         baseToken: {},
@@ -33,9 +42,12 @@ export const initialState = {
                 type: 'candlestick',
                 typeMA: '',
                 data: {},
-                visible: true
+                visible: true,
+                color: '#FFD700'
             }
-        ]
+        ],
+        xMin: 0,
+        xMax: 0
     }
 }
 
@@ -90,7 +102,10 @@ export const priceDataSlice = createSlice({
         },
         initChartObject: (state) => {
             state.chartObject.symbol = state.priceObject.symbol;
-            state.chartObject.series[0].name = `${state.priceObject.symbol} ${state.viewTimeframe.name}`
+            state.chartObject.series[0].name = `${state.priceObject.symbol} ${state.viewTimeframe.name}`;
+            state.chartObject.xMin = 
+            (state.priceObject.endTimestamp - state.maxCandlesNumber * state.viewTimeframe.seconds) * 1000;
+            state.chartObject.xMax = state.priceObject.endTimestamp * 1000;
         },
         switchTimeframe: (state, {payload}) => {
             state.viewTimeframe = payload;
@@ -105,7 +120,8 @@ export const priceDataSlice = createSlice({
                 nPeriods: parseInt(payload.nPeriods),
                 arrayType: payload.arrayType,
                 data: payload.data,
-                visible: true
+                visible: true,
+                color: payload.color
             }
             state.chartObject.series.push(dataObject);
         },
@@ -138,6 +154,18 @@ export const priceDataSlice = createSlice({
 
             state.chartObject.series[index].visible = 
                 !state.chartObject.series[index].visible;
+        },
+        updateColor: (state, {payload}) => {
+            const index = state.chartObject.series.findIndex(dataObject => {
+                return dataObject.id === payload.id;
+              });
+
+            state.chartObject.series[index].color = payload.color
+        },
+        updateXMinXMax: (state, {payload}) => {
+            const range = state.chartObject.xMax - state.chartObject.xMin;
+            state.chartObject.xMin += range * 0.1 * payload;
+            state.chartObject.xMax += range * 0.1 * payload;
         }
     }
 });
@@ -156,7 +184,9 @@ export const {
     removeMovingAverage,
     updateIndicatorSettings,
     updateIndicatorData,
-    updateVisibility
+    updateVisibility,
+    updateColor,
+    updateXMinXMax
 } = priceDataSlice.actions;
 
 // export selector
@@ -224,5 +254,17 @@ export function updateSeriesData(id, data) {
 export function toggleVisibility(id) {
     return async (dispatch) => {
         dispatch(updateVisibility(id));
+    }
+}
+
+export function changeColor(id, color) {
+    return async (dispatch) => {
+        dispatch(updateColor({id, color}));
+    }
+}
+
+export function scrollGraph(multiplier) {
+    return async (dispatch) => {
+        dispatch(updateXMinXMax(multiplier));
     }
 }

@@ -41,10 +41,10 @@
 - [ ] Clean code in PriceChart.js
     - [X] Make data be propagated
     - [X] Allow addition/deletion of averages
-    - [ ] Study and use chart options
+    - [X] Study and use chart options
         - [X] Control size of candles
         - [X] Take out 'Candlestick chart' text
-        - [ ] Is it easy to add color chooser?
+        - [X] Is it easy to add color chooser?
     - [X] Make this component a function of symbol, timeframe...
 - [X] Create app structure (redux, components, etc)
 - [ ] Clean up boilerplate code on index.html
@@ -63,7 +63,7 @@
     - [X] Add indicator place holder with configure and cancel button
     - [ ] Add ATR indicator
     - [X] Add _Visibility_ button
-    - [ ] Add color selector
+    - [X] Add color selector
     - [X] Store moving average data, so it is only processed and updated when needed
     - [X] Add array ```['open', 'high', 'low', 'close']``` selector
     - [ ] Styling

@@ -1,2 +1,2 @@
-web: cd client && npm run start
+web: PORT=$PORT index.hmtl
 worker: node index.js

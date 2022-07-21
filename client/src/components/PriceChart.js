@@ -2,22 +2,18 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import Chart from "react-apexcharts";
 import TimeframeSelector from './TimeframeSelector';
-import TokenBalances from './TokenBalances';
 import { 
   fetchPriceData,
   priceDataSelector,
   scrollGraph
 } from '../slices/priceData';
 import {indicatorConfigSelector} from '../slices/indicatorConfig';
-import {accountsSelector, loadBalances} from '../slices/accounts';
 
 import {
   calculateCandlestickData,
   getChartingData
 } from '../helpers/priceDataCalculator';
 import {defaultChartOptions} from '../helpers/chartOptions';
-import MetaMaskOnboarding from '@metamask/onboarding';
-
 
 // Temporary parameters derived from user interaction
 const userSymbol = 'AAVEWETH';
@@ -33,18 +29,6 @@ const PriceChart = () => {
     viewTimeframe,
   } = useSelector(priceDataSelector);
 
-  const { 
-    provider,
-    account,
-    baseTokenContract,
-    quoteTokenContract,
-    baseTokenBalance,
-    quoteTokenBalance,
-    balancesLoading
-  } = useSelector(accountsSelector);
-
-  console.log(provider, account)
-
   const arrayOHLC = priceObject.arrayOHLC;
 
   const {configuringIndicator, currentIndicator} = useSelector(indicatorConfigSelector);
@@ -57,33 +41,6 @@ const PriceChart = () => {
     // dispatch(loadTokenContracts(baseToken.address, quoteToken.address));
     // dispatch(loadBalances(account, baseTokenContract, quoteTokenContract));
   }, [dispatch]);
-
-  useEffect(() => {
-    getBalances();
-  }, [priceObject]);
-
-  const getBalances = () => {
-    const {baseToken, quoteToken} = priceObject;
-    if(baseToken !== {} && quoteToken !== {}) {
-      dispatch(loadBalances('0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5', quoteToken.address));
-    }
-  }
-
-  useEffect(() => {
-    if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      window.ethereum.on('accountsChanged', getBalances);
-      return () => {
-        window.ethereum.removeListener('accountsChanged', getBalances)
-      };
-    }
-  }, []);
-
-
-
-  console.log('baseToken', baseTokenContract, quoteTokenContract);
-
-  console.log('balance', baseTokenBalance, quoteTokenBalance);
-
 
   const handleScroll = (event) => {
     event.preventDefault();
@@ -190,17 +147,6 @@ const PriceChart = () => {
             options={priceChart.options}
             series={priceChart.series}
           />
-        </div>
-        <div>
-          {balancesLoading ? 
-          <h4>Loading balances...</h4> 
-          : 
-          <TokenBalances 
-            baseTokenSymbol={priceObject.baseToken.symbol} 
-            quoteTokenSymbol={priceObject.quoteToken.symbol} 
-            baseTokenBalance={baseTokenBalance} 
-            quoteTokenBalance={quoteTokenBalance} 
-          />}
         </div>
       </div>
     );

@@ -72,12 +72,18 @@
     - [ ] Add logo
     - [X] Add github button
     - [X] Wire up search field
+    - [ ] Add balances
+    - [ ] Switch location of the github and the connect to metamask buttons
+- [ ] URGENT
+    - [X] Add spinners
+    - [ ] Add blockchain selection
+    - [X] Add website name
 
 ## Features to add
 - [ ] View liquidity history (this would have to be implemented in the reader as well)
 - [ ] Have 1 hour observations data (this would have to be implemented in the reader)
 - [ ] Download all the historical data (to be implemented in the reader)
-- [ ] Add the possibility of viewing your balance of each coin
+- [X] Add the possibility of viewing your balance of each coin
 - [ ] How to update prices real time?
 - [ ] How to update symbol list?
 - [ ] Add token logos

@@ -1,57 +1,45 @@
+import React, { useEffect } from 'react';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { accountsSelector, checkProvider, loadAccount } from '../slices/accounts';
 
 const ONBOARD_TEXT = 'Click here to install MetaMask';
 const CONNECT_TEXT = 'Connect Metamask';
-const CONNECTED_TEXT = 'Connected';
 
 export function OnboardingButton() {
-  const [buttonText, setButtonText] = React.useState(ONBOARD_TEXT);
-  const [isDisabled, setDisabled] = React.useState(false);
-  const [accounts, setAccounts] = React.useState([]);
-  const onboarding = React.useRef();
 
-  React.useEffect(() => {
-    if (!onboarding.current) {
-      onboarding.current = new MetaMaskOnboarding();
-    }
-  }, []);
+  const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      if (accounts.length > 0) {
-        setButtonText(`${accounts[0].slice(0,6)}...${accounts[0].slice(accounts[0].length - 4)}`);
-        setDisabled(true);
-        onboarding.current.stopOnboarding();
-      } else {
-        setButtonText(CONNECT_TEXT);
-        setDisabled(false);
-      }
-    }
-  }, [accounts]);
+  const {account, metamaskInstalled} = useSelector(accountsSelector);
 
-    React.useEffect(() => {
-    function handleNewAccounts(newAccounts) {
-      setAccounts(newAccounts);
-    }
-    if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      window.ethereum
-        .request({ method: 'eth_requestAccounts' })
-        .then(handleNewAccounts);
-      window.ethereum.on('accountsChanged', handleNewAccounts);
-      return () => {
-        window.ethereum.removeListener('accountsChanged', handleNewAccounts)
-      };
-    }
+  const onboarding = new MetaMaskOnboarding();
+
+  let buttonText;
+  let isDisabled = false;
+
+  if(!metamaskInstalled) {
+    buttonText = ONBOARD_TEXT;
+  } else if (account !== undefined) {
+    buttonText = `${account.slice(0,6)}...${account.slice(account.length - 4)}`;
+    isDisabled = true;
+    onboarding.stopOnboarding();
+  } else {
+    buttonText = CONNECT_TEXT;
+  }
+
+  const handleNewAccount = () => {
+    const newAccount = dispatch(loadAccount());
+  }
+
+  useEffect(() => {
+    dispatch(checkProvider());
   }, []);
 
   const onClick = () => {
-    if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      window.ethereum
-        .request({ method: 'eth_requestAccounts' })
-        .then((newAccounts) => setAccounts(newAccounts));
+    if (metamaskInstalled) {
+      handleNewAccount();
     } else {
-      onboarding.current.startOnboarding();
+      onboarding.startOnboarding();
     }
   };
   return (

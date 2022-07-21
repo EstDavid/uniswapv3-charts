@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const port = process.env.PORT;
+
 // MAIN QUOTE TOKEN SYMBOLS
 const symbolETH = 'WETH';
 const symbolUSDC = 'USDC';
@@ -92,7 +94,7 @@ export function fetchPairsLists() {
         dispatch(getPairsLists());
 
         try {
-            const response = await fetch(`http://localhost:5000/get-symbols/30 seconds`);
+            const response = await fetch(`http://localhost:${port}/get-symbols/30 seconds`);
 
             const symbols = await response.json();
 

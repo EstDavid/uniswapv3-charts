@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 import {timeframes} from '../helpers/timeframes';
 import {calculateArrayTimeframe, calculateSMAFromOHLC, calculateEMAFromOHLC} from '../helpers/priceDataCalculator';
 
+const port = process.env.PORT;
+
 export const initialState = {
     loading: true,
     hasErrors: false,
@@ -201,7 +203,7 @@ export function fetchPriceData(symbol) {
         dispatch(getPriceData());
 
         try {
-            const response = await fetch(`http://localhost:5000/get-url/30 seconds/${symbol}`);
+            const response = await fetch(`http://localhost:${port}/get-url/30 seconds/${symbol}`);
 
             const data = await response.json();
 

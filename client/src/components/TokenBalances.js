@@ -2,131 +2,136 @@ import React, {useEffect} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { priceDataSelector } from '../slices/priceData';
 import {accountsSelector, loadAccount, loadBalances} from '../slices/accounts';
-import { getQuoteAmount, getBaseAmount} from '../helpers/converter';
+import { blockchainSelector } from '../slices/blockchain';
+import { getQuoteAmount, getBaseAmount, convertFromWei} from '../helpers/converter';
+import { BigNumber } from 'ethers';
 
 const TokenBalances = () => {
 
     const dispatch = useDispatch();
 
     const {
-      priceObject,
+        loading, 
+        priceObject,
     } = useSelector(priceDataSelector);
   
     const { 
       account,
       baseTokenBalance,
       quoteTokenBalance,
+      ethBalance,
       balancesLoading, 
       metamaskInstalled
     } = useSelector(accountsSelector);
 
-    const handleNewAccount = async () => {
-        dispatch(loadAccount());
+    const { defaultBlockchain }  = useSelector(blockchainSelector);
+
+    const { nativeTokenAddress } = defaultBlockchain;
+
+    const {baseToken, quoteToken} = priceObject;
+
+    const pretifyNumber = (number, minDecimals, maxDecimals) => {
+        const numberString = number.toString();
+        const [integerString, decimalString] = numberString.split('.');
+        if(decimalString === undefined) {
+            return integerString;
+        } else if(decimalString === ''.padEnd(decimalString.length, '0')) {
+            return integerString;
+        } else if(decimalString.length < minDecimals) {
+            return numberString;
+        } else {
+            return parseFloat(numberString).toPrecision(maxDecimals);
+        }
     }
 
-    const getBalances = () => {
-        const {baseToken, quoteToken} = priceObject;
-        if(baseToken !== {} && quoteToken !== {}) {
-          dispatch(loadBalances('0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5', quoteToken.address, account));
+    const lastPrice = priceObject.observations[priceObject.endTimestamp];
+
+    let totalBaseBalanceWei = baseTokenBalance;
+    let totalQuoteBalanceWei = quoteTokenBalance;
+    let totalBaseBalance
+    let totalQuoteBalance
+    let baseCounterValue;
+    let quoteCounterValue;
+
+    // Preparing token balances for display
+    if(totalBaseBalanceWei !== undefined && totalQuoteBalanceWei !== undefined && ethBalance !== undefined) {
+        if(baseToken.address.toUpperCase() === nativeTokenAddress.toUpperCase()) {
+            totalBaseBalanceWei = BigNumber.from(totalBaseBalanceWei).add(BigNumber.from(ethBalance));  
+        } else if (quoteToken.address.toUpperCase() === nativeTokenAddress.toUpperCase()) {
+            totalQuoteBalanceWei = BigNumber.from(totalQuoteBalanceWei).add(BigNumber.from(ethBalance));
         }
 
+        baseCounterValue = getQuoteAmount(totalBaseBalanceWei, lastPrice, baseToken.decimals);
+        quoteCounterValue = getBaseAmount(totalQuoteBalanceWei, lastPrice, quoteToken.decimals);
+
+        const minimumDecimals = 5;
+        const maximumDecimals = 6;
+        
+        totalBaseBalance = convertFromWei(totalBaseBalanceWei, baseToken.decimals);
+        totalQuoteBalance = convertFromWei(totalQuoteBalanceWei, quoteToken.decimals);
+
+        totalBaseBalance = pretifyNumber(totalBaseBalance, minimumDecimals, maximumDecimals);
+        totalQuoteBalance = pretifyNumber(totalQuoteBalance, minimumDecimals, maximumDecimals);
+        baseCounterValue = pretifyNumber(baseCounterValue, minimumDecimals, maximumDecimals);
+        quoteCounterValue = pretifyNumber(quoteCounterValue, minimumDecimals, maximumDecimals);
     }
-
-    useEffect(() => {
-        if (metamaskInstalled) {
-          window.ethereum.on('accountsChanged', handleNewAccount);
-          return () => {
-            window.ethereum.removeListener('accountsChanged', handleNewAccount)
-          };
-        }
-    }, [priceObject.symbol]);
-
-    useEffect(() => {
-        if(account !== undefined) {
-            getBalances();
-        }
-    }, [account, priceObject.symbol]);
   
     const balancesData = {
         base: {
-            symbol: priceObject.baseToken.symbol,
-            decimals: priceObject.baseToken.decimals,
+            symbol: baseToken.symbol,
+            decimals: baseToken.decimals,
             counterSymbol: priceObject.quoteToken.symbol,
-            balance: baseTokenBalance,
-            output: 5
+            balance: totalBaseBalance === undefined ? '' : totalBaseBalance,
+            counterValue: baseCounterValue === undefined ? '' : baseCounterValue
         },
         quote: {
-            symbol: priceObject.quoteToken.symbol,
-            counterSymbol: priceObject.baseToken.symbol,
-            decimals: priceObject.quoteToken.decimals,
-            balance: quoteTokenBalance,
-            output: 5
+            symbol: quoteToken.symbol,
+            counterSymbol: baseToken.symbol,
+            decimals: quoteToken.decimals,
+            balance: totalQuoteBalance === undefined ? '' : totalQuoteBalance,
+            counterValue: totalQuoteBalance === undefined ? '' : quoteCounterValue
         }
     }
-
-const amountETHin1 = '1000000000000';
-
-const priceWETHUSD1 = 1355.001; // 1350 dollars (quote) / unit of ETH (base)
-
-const amountUSDOut1 = getQuoteAmount(amountETHin1, priceWETHUSD1, 18);
-
-const priceUSDWETH1 = (parseFloat(1/1500)).toString();
-
-const amountUSDIn1 = '1000000000';
-
-const amountETHOut1 = getQuoteAmount(amountUSDIn1, priceUSDWETH1, 6);
-
-console.log('amount ETH 1', amountETHOut1.toString());
-
-console.log('amount USD 1', amountUSDOut1.toString());
-
-const amountUSDIn = '1000000';
-
-const priceWETHUSD = 1000; // 1350 dollars (quote) / unit of ETH (base)
-
-const amountETHOut = getBaseAmount(amountUSDIn, priceWETHUSD, 6);
-
-const priceUSDWETH = (parseFloat(1/1500)).toString();
-console.log(priceUSDWETH)
-
-const amountETHin = '1000000000000000000';
-
-const amountUSDOut = getBaseAmount(amountETHin, priceUSDWETH, 18);
-
-console.log('amount ETH', amountETHOut.toString());
-
-console.log('amount USD', amountUSDOut.toString());
-
-    console.log(balancesData.base.decimals, balancesData.quote.decimals)
 
     const columnNames = ['Account balance', '(Countervalue)'];
 
     return (
-        <table className="table">
-            <thead className="thead-light">
-                <tr className="text-center">
-                    {columnNames.map((name, index) => {
-                        return <th key={index} scope="col">{name}</th>
+        <div>
+            {balancesLoading || loading ? 
+            <div className="spinner-border text-secondary" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+            :
+            <table className="table table-borderless table-sm">
+                <thead className="thead table-secondary">
+                    <tr className="text-center">
+                        {columnNames.map((name, index) => {
+                            return <th key={index} scope="col"><small>{name}</small></th>
+                        })}
+                    </tr>
+                </thead>
+                <tbody>
+                    {Object.keys(balancesData).map((key, index) => {
+                        return (
+                            <tr key={index} >
+                                <td className="text-center">
+                                    <span className="badge rounded-pill bg-dark" style={{width : "100%"}} >
+                                        <small>{`${balancesData[key].balance} ${balancesData[key].symbol}`}</small>
+                                    </span>
+                                </td>
+                                    {/* <i className="p-2 bi bi-arrow-right-circle-fill"></i> */}
+                                <td className="text-center">
+                                    <span className="badge rounded-pill bg-secondary" style={{width : "100%"}} >
+                                        <small>{`( ${balancesData[key].counterValue} ${balancesData[key].counterSymbol})`}</small>
+                                    </span>
+                                </td>            
+                            </tr>
+                        )
                     })}
-                </tr>
-            </thead>
-            <tbody>
-                {Object.keys(balancesData).map((key, index) => {
-                    return (
-                        <tr key={index} >
-                            <td className="text-center">
-                                <span className="badge bg-warning">{`${balancesData[key].balance} ${balancesData[key].symbol}`}</span>
-                            </td>
-                                {/* <i className="p-2 bi bi-arrow-right-circle-fill"></i> */}
-                            <td className="text-center">
-                                <span className="badge bg-secondary">{`( ${balancesData[key].output} ${balancesData[key].counterSymbol})`}</span>
-                            </td>            
-                        </tr>
-                    )
-                })}
-
-            </tbody>
-        </table>
+                </tbody>
+            </table>            
+            }
+        </div>
     )
 }
 

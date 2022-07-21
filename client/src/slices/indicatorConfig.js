@@ -73,6 +73,7 @@ export const indicatorConfigSlice = createSlice({
             state.currentIndicator.nPeriods = payload.nPeriods;
             state.currentIndicator.type = payload.type;
             state.currentIndicator.arrayType = payload.arrayType;
+            state.currentIndicator.color = payload.color;
         },
     }
 });

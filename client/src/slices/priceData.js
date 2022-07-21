@@ -203,7 +203,7 @@ export function fetchPriceData(symbol) {
         dispatch(getPriceData());
 
         try {
-            const response = await fetch(`http://localhost:${port}/get-url/30 seconds/${symbol}`);
+            const response = await fetch(`/get-url/30 seconds/${symbol}`);
 
             const data = await response.json();
 

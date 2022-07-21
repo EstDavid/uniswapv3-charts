@@ -18,7 +18,7 @@ import {
 import {defaultChartOptions} from '../helpers/chartOptions';
 
 // Temporary parameters derived from user interaction
-const userSymbol = 'AAVEWETH';
+const userSymbol = 'WETHUSDT';
 
 const PriceChart = () => {
   const dispatch = useDispatch();

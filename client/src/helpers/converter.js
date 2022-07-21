@@ -1,4 +1,4 @@
-import { utils, BigNumber, FixedNumber, } from 'ethers';
+import { utils, BigNumber } from 'ethers';
 
 // Price = ratio (quote amount / base amount ) = units of quote to get one unit of base
 // Example:  (base) BTC - USD (quote) price = $25000 => 25000 units of USD per unit of BTC

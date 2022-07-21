@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {ethers} from 'ethers';
 import ERC20Token from '../abis/Token.json';
+import { utils } from 'ethers';
 import MetaMaskOnboarding from '@metamask/onboarding';
 
 const ERC20TokenABI = ERC20Token.abi;
@@ -10,6 +11,7 @@ export const initialState = {
     account: undefined,
     baseTokenBalance: undefined,
     quoteTokenBalance: undefined,
+    ethBalance: undefined,
     metamaskInstalled: false
 }
 
@@ -26,9 +28,13 @@ export const accountsSlice = createSlice({
         balancesLoading:(state) => {
             state.balancesLoading = true;
         },
-        balancesLoaded: (state, {payload}) => {
+        tokenBalancesLoaded: (state, {payload}) => {
             state.baseTokenBalance = payload.baseTokenBalanceString;
             state.quoteTokenBalance = payload.quoteTokenBalanceString;
+            state.balancesLoading = false;
+        },
+        ethBalanceLoaded: (state, {payload}) => {
+            state.ethBalance = payload;
             state.balancesLoading = false;
         },
         metamaskChecked: (state) => {
@@ -42,7 +48,8 @@ export const {
     accountLoaded,
     accountUnloaded,
     balancesLoading,
-    balancesLoaded,
+    tokenBalancesLoaded,
+    ethBalanceLoaded,
     metamaskChecked
 } = accountsSlice.actions;
 
@@ -64,9 +71,15 @@ export function checkProvider() {
     }
 }
 
-export function loadAccount() {
+export function loadProvider() {
     return async (dispatch) => {
         const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        return provider;
+    }
+}
+
+export function loadAccount(provider) {
+    return async (dispatch) => {
         const accounts = await provider.send("eth_requestAccounts", []);
         const account = accounts[0];
         if(typeof account !== 'undefined' && account !== undefined){
@@ -78,23 +91,23 @@ export function loadAccount() {
     }
 }
 
-export function loadBalances(baseTokenAddress, quoteTokenAddress, account) {
+export function loadBalances(baseToken, quoteToken, account) {
     return async (dispatch) => {
         dispatch(balancesLoading());
         if(typeof window.ethereum !== 'undefined' && MetaMaskOnboarding.isMetaMaskInstalled()){
             dispatch(metamaskChecked());
 
             const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-            const amountWei = utils.formatUnits('1000', 6)
-            console.log('amount wei', amountWei.toString())
+            const ethBalance = await provider.getBalance(account);
+
             const baseTokenContract = new ethers.Contract(
-                baseTokenAddress,
+                baseToken.address,
                 // '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
                 ERC20TokenABI,
                 provider
             );
             const quoteTokenContract = new ethers.Contract(
-                quoteTokenAddress,
+                quoteToken.address,
                 // '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
                 ERC20TokenABI,
                 provider
@@ -103,7 +116,8 @@ export function loadBalances(baseTokenAddress, quoteTokenAddress, account) {
             const quoteTokenBalance = await quoteTokenContract.balanceOf(account);
             const baseTokenBalanceString = baseTokenBalance.toString();
             const quoteTokenBalanceString = quoteTokenBalance.toString();
-            dispatch(balancesLoaded({baseTokenBalanceString, quoteTokenBalanceString}));
+            dispatch(tokenBalancesLoaded({baseTokenBalanceString, quoteTokenBalanceString}));
+            dispatch(ethBalanceLoaded(ethBalance.toString()));
         }
     }
 }

@@ -5,6 +5,15 @@ import {priceDataSelector} from '../slices/priceData';
 const ChartTitle = () => {
 
     const { priceObject } = useSelector(priceDataSelector);
+
+    const baseLogo = priceObject.baseToken.logoURI;
+    const quoteLogo = priceObject.quoteToken.logoURI;
+
+    const showLogos = 
+        baseLogo !== undefined &&
+        baseLogo !== '' && 
+        quoteLogo !== undefined &&
+        quoteLogo !== ''; 
     
     return (
         <div className="d-flex w-100 align-items-center justify-content-between">
@@ -15,12 +24,18 @@ const ChartTitle = () => {
             <a
                 href={`https://etherscan.io/address/${priceObject.baseToken.address.toLowerCase()}`}
                 target="_blank" rel="noreferrer noopener">
-                <img src="https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png?1601374110" style={{height: "100%"}}></img>
+                {showLogos ? 
+                    <img src={baseLogo} style={{height: "100%"}}></img>
+                :
+                <div></div>}
             </a>
             <a
                 href={`https://etherscan.io/address/${priceObject.quoteToken.address.toLowerCase()}`}
                 target="_blank" rel="noreferrer noopener">
-                <img src="https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295" style={{height: "100%"}}></img>
+                {showLogos ? 
+                    <img src={quoteLogo} style={{height: "100%"}}></img>
+                :
+                <div></div>}
             </a>
             </div>
             <div>

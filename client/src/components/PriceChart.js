@@ -6,7 +6,8 @@ import ChartTitle from './ChartTitle';
 import { 
   fetchPriceData,
   priceDataSelector,
-  scrollGraph
+  scrollGraph,
+  toggleShowCTRLMouseWheel
 } from '../slices/priceData';
 import {indicatorConfigSelector} from '../slices/indicatorConfig';
 import {accountsSelector} from '../slices/accounts';
@@ -29,6 +30,7 @@ const PriceChart = () => {
     priceObject,
     chartObject,
     viewTimeframe,
+    showCTRLMouseWheel
   } = useSelector(priceDataSelector);
 
   const { 
@@ -51,10 +53,16 @@ const PriceChart = () => {
 
   const handleScroll = (event) => {
     event.preventDefault();
-    if(event.deltaY < 0) {
-      dispatch(scrollGraph(-1));
-    } else if (event.deltaY > 0) {
-      dispatch(scrollGraph(1));
+    if(event.ctrlKey === true) {
+      event.preventDefault();
+      if(event.deltaY < 0) {
+        dispatch(scrollGraph(-1));
+      } else if (event.deltaY > 0) {
+        dispatch(scrollGraph(1));
+      }
+    } else {
+      dispatch(toggleShowCTRLMouseWheel(true));
+      setTimeout(() => dispatch(toggleShowCTRLMouseWheel(false)), 1500);
     }
   }
 
@@ -134,12 +142,22 @@ const PriceChart = () => {
       <div>
         <ChartTitle />
         <TimeframeSelector />
-        <div onWheel={handleScroll}>
-          <Chart
-            options={priceChart.options}
-            series={priceChart.series}
-          />
+        <div className="card my-2">
+          <div onWheel={handleScroll}>
+            <Chart style={showCTRLMouseWheel ? {opacity: "0.2"} : {} }
+              options={priceChart.options}
+              series={priceChart.series}
+            />
+            {showCTRLMouseWheel ? 
+            <div className="ctrl-mousewheel-text card-img-overlay">
+              <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
+            </div>
+              : ''}
+
         </div>
+          
+        </div>
+
       </div>
     );
   }

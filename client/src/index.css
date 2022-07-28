@@ -13,6 +13,15 @@ code {
 }
 
 /* AD-HOC CUSTOM PROPERTIES*/
+.bg-dark {
+  background-color: #d63384 !important;
+  padding: 5px;
+}
+
+.btn-primary {
+  background-color: #d63384;
+}
+
 .text-end i {
   font-size: large;
   margin-right: 10px

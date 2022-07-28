@@ -8,7 +8,7 @@ const PairsSidebar = () => {
 
     return(
         <div className="flex-shrink-0 p-3 bg-white" style={{width: "280px"}}>
-            <div className="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
+            <div className="d-flex align-items-center pb-3 mb-3 text-decoration-none border-bottom">
                 <svg className="bi me-2" width="30" height="24"></svg>
                 {pairsListsLoading ? 
                     <span className="spinner-border spinner-border-sm mr2" role="status" aria-hidden="true"></span>

@@ -17,26 +17,32 @@ const ChartTitle = () => {
     
     return (
         <div className="d-flex w-100 align-items-center justify-content-between">
-            <div className="d-flex align-items-center">
-            <h2 className="p-2 mr-auto">
-                {`${priceObject.baseToken.symbol} / ${priceObject.quoteToken.symbol}`}</h2>
-            <span></span>
-            <a
-                href={`https://etherscan.io/address/${priceObject.baseToken.address.toLowerCase()}`}
-                target="_blank" rel="noreferrer noopener">
-                {showLogos ? 
-                    <img src={baseLogo} style={{height: "100%"}}></img>
-                :
-                <div></div>}
-            </a>
-            <a
-                href={`https://etherscan.io/address/${priceObject.quoteToken.address.toLowerCase()}`}
-                target="_blank" rel="noreferrer noopener">
-                {showLogos ? 
-                    <img src={quoteLogo} style={{height: "100%"}}></img>
-                :
-                <div></div>}
-            </a>
+            <div className="list-group list-group-horizontal list-group-flush">
+                <a
+                    className="list-group-item px-1 text-reset"
+                    href={`https://etherscan.io/address/${priceObject.baseToken.address.toLowerCase()}`}
+                    target="_blank" rel="noreferrer noopener">
+                    <div className="d-flex align-items-center">
+                        {showLogos ? 
+                            <img className="me-1 charttitle-logo" src={baseLogo}></img>
+                        :
+                        <div></div>}
+                        <h2 className="w-100">{`${priceObject.baseToken.symbol}`}</h2>
+                    </div>
+                </a>                
+                <a className="list-group-item px-0 text-reset"><h2>/</h2></a>
+                <a
+                    className="list-group-item px-1 text-reset"
+                    href={`https://etherscan.io/address/${priceObject.quoteToken.address.toLowerCase()}`}
+                    target="_blank" rel="noreferrer noopener">
+                    <div className="d-flex align-items-center">
+                        {showLogos ? 
+                            <img className="me-1 charttitle-logo" src={quoteLogo}></img>
+                        :
+                        <div></div>}
+                        <h2 className="w-100">{`${priceObject.quoteToken.symbol}`}</h2>                            
+                    </div>
+                </a>
             </div>
             <div>
             <a className="btn btn-outline-secondary"

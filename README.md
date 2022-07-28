@@ -46,6 +46,7 @@
         - [X] Take out 'Candlestick chart' text
         - [X] Is it easy to add color chooser?
     - [X] Make this component a function of symbol, timeframe...
+    - [X] Improve candle display calculation
 - [X] Create app structure (redux, components, etc)
 - [ ] Clean up boilerplate code on index.html
 - [X] Prepare power point with logo, layout, etc...
@@ -66,14 +67,15 @@
     - [X] Add color selector
     - [X] Store moving average data, so it is only processed and updated when needed
     - [X] Add array ```['open', 'high', 'low', 'close']``` selector
-    - [ ] Styling
+    - [X] Styling
         - [X]Align _Submit_ and _Cancel_ buttons on the same line
 - [ ] Navbar
     - [ ] Add logo
     - [X] Add github button
     - [X] Wire up search field
-    - [ ] Add balances
-    - [ ] Switch location of the github and the connect to metamask buttons
+    - [X] Add balances
+    - [X] Switch location of the github and the connect to metamask buttons
+    - [X] Make responsive
 - [ ] URGENT
     - [X] Add spinners
     - [ ] Add blockchain selection
@@ -86,6 +88,6 @@
 - [X] Add the possibility of viewing your balance of each coin
 - [ ] How to update prices real time?
 - [ ] How to update symbol list?
-- [ ] Add token logos
+- [X] Add token logos
 - [ ] Use localStorage to save user settings
 - [ ] Responsivity

@@ -47,16 +47,20 @@ const TimeframeSelector = () => {
                 )
             })}
 
-            <div className="btn-group btn-group-sm" role="group">
+            <div 
+                className={`btn-group btn-group-sm${toptimeframeSelected() ? ' main-timeframe' : ' special-timeframe'}`} 
+                role="group">
                 <button
+                    className={`btn btn-sm btn-primary dropdown-toggle`}
                     id="btnGroupDrop1"
                     type="button"
-                    className="btn btn-sm btn-primary dropdown-toggle"
                     data-bs-toggle="dropdown"
-                    aria-expanded="false">
+                    data-bs-target="#timeframe-dropdown"
+                    aria-expanded="false"
+                    >
                     {toptimeframeSelected() ? 'More' : abbreviateName(viewTimeframe.name)}
                 </button>
-                <ul className="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <ul className="dropdown-menu" id="timeframe-dropdown" aria-labelledby="btnGroupDrop1">
                     {allTimeframes.map((key, index) => {
                         let timeframe = timeframes[key];
                         return <li key={index} onClick={() => timeframeClick(timeframe)}><a className="dropdown-item" href="#">{timeframe.name}</a></li>

@@ -9,7 +9,7 @@ export const defaultChartOptions = (xMin, xMax, lineColors) => {
       align: 'left'
     }, */
     stroke: {
-      width: [3, 2, 2, 2, 2, 2],
+      width: [1, 2, 2, 2, 2, 2],
     },
     colors: lineColors,
     tooltip: {

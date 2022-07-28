@@ -11,6 +11,7 @@ export const initialState = {
     viewTimeframe: timeframes['hours1'],
     priceDataRaw: {},
     maxCandlesNumber: 150,
+    showCTRLMouseWheel: false,
     indicatorColors: [ 
         '#000000',
         '#0000FF',
@@ -32,7 +33,8 @@ export const initialState = {
         startTimestamp: undefined,
         endTimestamp: undefined,
         observations: {},
-        arrayOHLC: {}
+        arrayOHLC: {},
+        maxTimestamp: undefined
     },
     chartObject: {
         symbol: '',
@@ -80,6 +82,7 @@ export const priceDataSlice = createSlice({
             state.priceObject.startTimestamp = payload.startTimestamp;
             state.priceObject.endTimestamp = payload.endTimestamp;
             state.priceObject.observations = payload.observations;
+            state.priceObject.maxTimestamp = Math.max(...Object.keys(payload.observations));
             state.loadingPriceObject = false;
         },
         setArrayOHLC: (state ) => {
@@ -105,9 +108,17 @@ export const priceDataSlice = createSlice({
         initChartObject: (state) => {
             state.chartObject.symbol = state.priceObject.symbol;
             state.chartObject.series[0].name = `${state.priceObject.symbol} ${state.viewTimeframe.name}`;
+            const availableCandles = 
+                Object.keys(state.priceObject.observations).length *
+                state.priceObject.observationTimeframe.seconds /
+                state.viewTimeframe.seconds;
             state.chartObject.xMin = 
-            (state.priceObject.endTimestamp - state.maxCandlesNumber * state.viewTimeframe.seconds) * 1000;
-            state.chartObject.xMax = state.priceObject.endTimestamp * 1000;
+                (
+                    state.priceObject.maxTimestamp - 
+                    Math.min(state.maxCandlesNumber, availableCandles * 1.2) *
+                    state.viewTimeframe.seconds
+                ) * 1000;
+            state.chartObject.xMax = state.priceObject.maxTimestamp * 1000;
         },
         switchTimeframe: (state, {payload}) => {
             state.viewTimeframe = payload;
@@ -168,6 +179,9 @@ export const priceDataSlice = createSlice({
             const range = state.chartObject.xMax - state.chartObject.xMin;
             state.chartObject.xMin += range * 0.1 * payload;
             state.chartObject.xMax += range * 0.1 * payload;
+        },
+        updateShowCTRLMouseWheel: (state, {payload}) => {
+            state.showCTRLMouseWheel = payload;
         }
     }
 });
@@ -188,7 +202,8 @@ export const {
     updateIndicatorData,
     updateVisibility,
     updateColor,
-    updateXMinXMax
+    updateXMinXMax,
+    updateShowCTRLMouseWheel
 } = priceDataSlice.actions;
 
 // export selector
@@ -268,5 +283,12 @@ export function changeColor(id, color) {
 export function scrollGraph(multiplier) {
     return async (dispatch) => {
         dispatch(updateXMinXMax(multiplier));
+    }
+}
+
+
+export function toggleShowCTRLMouseWheel(show) {
+    return async (dispatch) => {
+        dispatch(updateShowCTRLMouseWheel(show));
     }
 }

@@ -5,7 +5,6 @@
 @import "../node_modules/bootstrap/scss/functions";
 
 // 2. Include any default variable overrides here
-$primary: #d63384;
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";
@@ -62,6 +61,12 @@ code {
 .main-timeframe > .btn-sm.dropdown-toggle {
   background-color: $white;
   color: $primary;
+}
+
+.link-dark.rounded:focus {
+  color: white !important;
+  font-weight: bold;
+  background-color: $pink-400 !important;
 }
 
 .btn.btn-toggle.rounded:hover, .btn.btn-toggle.rounded:focus, .link-dark.rounded:hover {

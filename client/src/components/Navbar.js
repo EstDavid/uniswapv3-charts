@@ -37,8 +37,9 @@ const filterSymbols = (event) => {
   return(
     <nav className="navbar navbar-expand-md navbar-primary bg-primary text-white pb-2" aria-label="UniCharts navbar">
       <div className="container-fluid">
-        <a href="/" className="navbar-brand text-white text-decoration-none me-md-auto">
-          <span>UniCharts</span>
+        <a href="/" className="navbar-brand text-white text-decoration-none me-md-auto d-flex align-items-center">
+        <h1><span className="badge bg-secondary me-2 p-2">UC</span></h1>
+          <h2>UniCharts</h2>
         </a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>

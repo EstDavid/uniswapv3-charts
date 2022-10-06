@@ -2,7 +2,7 @@
 Uniswap V3 Charts is a web app that reads price data from a set of Uniswap V3 pools and displays it on candlestick charts.
 The app allows adjusting the charts to different timeframes and also allows adding up to 5 moving average indicators These indicators can be a simple moving average (SMA) or exponential moving average (EMA)
 
-The price data is produced by another app called [Uniswap V3 Oracle Reader (UV3OR)](https://github.com/EstDavid/UniswapV3OracleReader "Uniswap V3 Oracle Reader"). The UV3OR reads historical price data from different token pair pools on Uniswap V3 and writes it to Google Cloud Storage.
+The price data is produced by another app called <a href="https://github.com/EstDavid/UniswapV3OracleReader" target="_blank" rel="noreferrer noopener">Uniswap V3 Oracle Reader (UV3OR)</a>. The UV3OR reads historical price data from different token pair pools on Uniswap V3 and writes it to Google Cloud Storage.
 
 Uniswap V3 Charts uses an express server to download all the price data from Google Cloud Storage.
 
@@ -81,6 +81,49 @@ initPriceObject: (state, {payload}) => {
     state.priceObject.maxTimestamp = Math.max(...Object.keys(payload.observations));
     state.loadingPriceObject = false;
 }
+```
+
+### Chart generation
+Candlestick charts are generated with the use of the <a href="https://apexcharts.com/docs/react-charts/" target="_blank" rel="noreferrer noopener">react-apexcharts library</a>.
+In the ```PriceChart.js``` component, the ```Chart``` component is imported from the react-apexcharts library.
+
+```javascript
+import Chart from "react-apexcharts";
+```
+
+In order to pass custom chart options and price data to the ```Chart``` component, an object called ```priceCharts``` is used:
+
+
+When calling the Chart component, a custom set of options is used. The chart data is stored in an object called ```priceChart```
+
+```javascript
+const priceChart = {
+    symbol: priceObject.symbol,
+    options: defaultChartOptions(chartObject.xMin, chartObject.xMax, indicatorColors),
+    series: priceSeries
+}
+```
+
+```javascript
+return (
+    <div>
+    <ChartTitle />
+    <TimeframeSelector />
+    <div className="card my-2">
+        <div onWheel={handleScroll}>
+        <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
+            options={priceChart.options}
+            series={priceChart.series}
+        />
+        {showCTRLMouseWheel ?
+            <div className="ctrl-mousewheel-text card-img-overlay">
+            <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
+            </div>
+            : ''}
+        </div>
+    </div>
+    </div>
+);
 ```
 
 

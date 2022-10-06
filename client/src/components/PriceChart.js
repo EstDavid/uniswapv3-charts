@@ -144,20 +144,17 @@ const PriceChart = () => {
         <TimeframeSelector />
         <div className="card my-2">
           <div onWheel={handleScroll}>
-            <Chart style={showCTRLMouseWheel ? {opacity: "0.2"} : {} }
+            <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
               options={priceChart.options}
               series={priceChart.series}
             />
-            {showCTRLMouseWheel ? 
-            <div className="ctrl-mousewheel-text card-img-overlay">
-              <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
-            </div>
+            {showCTRLMouseWheel ?
+              <div className="ctrl-mousewheel-text card-img-overlay">
+                <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
+              </div>
               : ''}
-
+          </div>
         </div>
-          
-        </div>
-
       </div>
     );
   }

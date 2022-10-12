@@ -93,9 +93,6 @@ import Chart from "react-apexcharts";
 
 In order to pass custom chart options and price data to the ```Chart``` component, an object called ```priceCharts``` is used:
 
-
-When calling the Chart component, a custom set of options is used. The chart data is stored in an object called ```priceChart```
-
 ```javascript
 const priceChart = {
     symbol: priceObject.symbol,
@@ -104,30 +101,81 @@ const priceChart = {
 }
 ```
 
+The ```Chart``` component is included inside the ```PriceChart``` component. The options and chart data are passed in the ```options={priceChart.options}``` and ```series={priceChart.series}``` lines respectively:
+
 ```javascript
 return (
     <div>
-    <ChartTitle />
-    <TimeframeSelector />
-    <div className="card my-2">
-        <div onWheel={handleScroll}>
-        <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
-            options={priceChart.options}
-            series={priceChart.series}
-        />
-        {showCTRLMouseWheel ?
-            <div className="ctrl-mousewheel-text card-img-overlay">
-            <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
+        <ChartTitle />
+        <TimeframeSelector />
+        <div className="card my-2">
+            <div onWheel={handleScroll}>
+            <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
+                options={priceChart.options}
+                series={priceChart.series}
+            />
+            {showCTRLMouseWheel ?
+                <div className="ctrl-mousewheel-text card-img-overlay">
+                <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
+                </div>
+                : ''}
             </div>
-            : ''}
         </div>
-    </div>
     </div>
 );
 ```
 
+### Formatting price data
+In order to create a candlestick chart using the react-apexcharts `Chart` component, the data needs to have the following format:
+
+```javascript
+export const candlestickData = [
+    {
+      x: new Date(1538778600000),
+      y: [1360.60, 1401.07, 1312.25, 1330.01]
+    },
+    {
+      x: new Date(1538780400000),
+      y: [1330.01, 1350.59, 1297.34, 1350.59]
+    },
+    ...
+]
+```
+
+The value of `x` represents the timestamp of the candle and the array `y` contains the values for the `[open, high, low, close]` (OHLC) prices. 
+
+For all price related calculations, a file named `priceDataCalculator.js` is used. The file is located in the `helpers` folder.
+
+The price observations are located the `observations` key of the `priceObject` variable. The value of this key is an object whose keys are timestamps and the values are the price observed.
+
+In order to transform this data into a format readable for the candlestick chart, the `calculateArrayTimeframe` function in the `priceDataCalculator.js` file is called. This function takes as input the `priceObject` variable, as well as a `timeframe` object which tells the function which is the timeframe of the candles (30 seconds, ..., 5 minutes, ..., 1 hour, ...).
+
+The `calculateArrayTimeframe` returns an object with the following format:
+```javascript
+priceArray[startTimeframe] = {
+    timestamp: startTimeframe,
+    open,
+    high,
+    low,
+    close
+}
+```
 
 ### Moving average indicators
+So far the Uniswap V3 Charts web app allows the creation of only two types of indicators:
++ Simple Moving Average <a href="https://www.investopedia.com/terms/s/sma.asp" target="_blank" rel="noreferrer noopener">(SMA)</a>
++ Exponential Moving Average <a href="https://www.investopedia.com/terms/e/ema.asp" target="_blank" rel="noreferrer noopener">(EMA)</a>
+
+These indicators are obtained using the `calculateSMAFromOHLC` and `calculateEMAFromOHLC` functions respectively, which are located in the `priceDataCalculator.js` file.
+
+(arrayOHLC, nPeriods, arrayType)
+
+Both functions take the following inputs:
++ `arrayOHLC` &rarr; Array with the open, high, low and close prices of the candles
++ `nPeriods` &rarr; Number with the length (number of previous candles) of the time period to calculate the average
++ `arrayType` &rarr; String which tells the function which of the four price arrays in the OHLC array use to calculate the moving average. The default is the `close` array.
+
+
 ### Connecting Metamask
 
 

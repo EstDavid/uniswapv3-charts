@@ -7,9 +7,70 @@ The price data is produced by another app called <a href="https://github.com/Est
 Uniswap V3 Charts uses an express server to download all the price data from Google Cloud Storage.
 
 ## Express server
+The express server allows to fetch price data from Google Cloud Storage and feed it into the charting application.
+
 ### Setup
+The setup was done following <a href="https://javascript.plainenglish.io/upload-files-to-google-cloud-storage-from-react-cf839d7361a5" target="_blank" rel="noreferrer noopener">this article</a> that explains how to upload files to Google Cloud Storage from React using Node.js and Multer.
+
 ### Retrieving symbol list
+Everytime the website is first loaded, it needs to retrieve all the existing symbols in the database.
+
+The request is made from the `<PairsList>` component. 
+
+```javascript
+useEffect(() => {
+    dispatch(fetchPairsLists());
+}, [dispatch]);
+```
+
+The `fetchPairsLists` function is located in the `pairsLists` slice. 
+
+In order to download the symbol list, `fetchPairsLists` makes a request Google Cloud Storage using the `bucket.getFiles(options)` function to get all the filenames in a specific `timeframe`. Since the filename comes in the form of `/[timeframe]/[symbol].json`, i.e. `/30 seconds/WETHUSDC.json`, the symbol is obtained by removing the folder prefix and the `.json` suffix. The the express server then returns an array with all the symbols in the given timeframe folder. 
+
+```javascript
+app.get("/get-symbols/:timeframe/", (req, res) => {
+  const options = {
+    prefix: `${req.params.timeframe}/`,
+  };
+
+  bucket.getFiles(options).then((response) => {
+    const [files] = response;
+    const fileNames = [];
+
+    files.map((file) => {
+      let startCharacter = options.prefix.length;
+      let endCharacter = file.name.length - '.json'.length;
+      let symbol = file.name.substring(startCharacter, endCharacter);
+      fileNames.push(symbol);
+    });
+
+    res.status(200).send(fileNames);      
+  })
+});
+```
+
 ### Retrieving price data
+Symbol price data is retrieved everytime a symbol from the symbol list is selected. The request is made from the `<PriceChart>` component. 
+
+```javascript
+useEffect(() => {
+    dispatch(fetchPriceData(userSymbol, viewTimeframe));
+}, [dispatch]);
+```
+
+The `fetchPriceData` function is located in the `priceData` slice. 
+
+In order to download the symbol list, `fetchPriceData` makes a request Google Cloud Storage using the `bucket.file.download` function to the content of a specific symbol file. The the express server then returns an array with the price data `.json` file for the specific symbol. 
+
+```javascript
+app.get("/get-url/:timeframe/:symbol", (req, res) => {
+    const file = bucket.file(`${req.params.timeframe}/${req.params.symbol}.json`);
+
+    file.download((error, data) => {
+        res.status(200).send(data)
+    });
+});
+```
 
 ## Charting App
 ### Reading price data
@@ -142,7 +203,9 @@ export const candlestickData = [
 ]
 ```
 
-The value of `x` represents the timestamp of the candle and the array `y` contains the values for the `[open, high, low, close]` (OHLC) prices. 
+The value of `x` represents the timestamp of the candle and the array `y` contains the values for the `[open, high, low, close]` (OHLC) prices.
+
+![Candlestick diagram](/images/candlestickDiagram.png)
 
 For all price related calculations, a file named `priceDataCalculator.js` is used. The file is located in the `helpers` folder.
 

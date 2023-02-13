@@ -4,12 +4,19 @@
 require('dotenv').config()
 const express = require("express");
 var cors = require("cors");
+var { format }  = require("util");
+var Multer = require( "multer");
 var path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+const multer = Multer({
+  storage: Multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // no larger than 5mb, you can change as needed.
+  },
+});
 
 const mongoose = require('mongoose')
 

@@ -95,8 +95,6 @@ app.get("/get-url/:timeframe/:symbol", (req, res) => {
               endTimestamp: (latestTimestamp / 1000).toString(),
               maxObservations: observationsData.length,
             }
-
-            console.log(symbolObject.observations)
       
             res.status(200).send(symbolObject)
           } else {
@@ -110,7 +108,6 @@ app.get("/get-url/:timeframe/:symbol", (req, res) => {
 
 // DOWNLOAD ALL FILENAMES AND CLASSIFY PAIRS ACCORDING TO QUOTE TOKEN
 app.get("/get-symbols/:timeframe/", (req, res) => {
-  console.log('symbols!', req.params.timeframe)
   const symbols = []
 
   Pair.find({})
@@ -122,8 +119,6 @@ app.get("/get-symbols/:timeframe/", (req, res) => {
           symbols.push(pair.symbol)
         }
       })
-
-      console.log(symbols)
 
       res.status(200).send(symbols); 
     })

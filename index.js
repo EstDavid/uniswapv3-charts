@@ -2,70 +2,133 @@
 // https://javascript.plainenglish.io/upload-files-to-google-cloud-storage-from-react-cf839d7361a5
 
 require('dotenv').config()
-var { Storage } = require("@google-cloud/storage");
 const express = require("express");
 var cors = require("cors");
-var { format }  = require("util");
-var Multer = require( "multer");
 var path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-const multer = Multer({
-  storage: Multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024, // no larger than 5mb, you can change as needed.
-  },
-});
-
 app.use(cors());
 
-const bucketName = process.env.BUCKET_NAME;
-const credential = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const mongoose = require('mongoose')
 
-const projectId = process.env.PROJECT_ID
+mongoose.set('strictQuery', false)
 
-const cloudStorage = new Storage({
-  keyFilename: credential,
-  projectId: projectId,
-});
+const url = process.env.MONGODB_URI
 
-const bucket = cloudStorage.bucket(bucketName);
+console.log('connecting to', url)
+
+mongoose.connect(url)
+    .then(result => {
+        console.log('connected to MongoDB')
+    })
+    .catch((error) => {
+        console.log('error connecting to MongoDB', error.message)
+    })
+
+const Pair = require('./models/pair')
+
+const getObservationsObject = (observationsArray) => {
+  const observationsObject = {}
+
+  observationsArray.forEach(observation => {
+    const timestampSeconds = Date.parse(observation.timestamp) / 1000
+    observationsObject[timestampSeconds] = observation.price
+  })
+
+  return observationsObject
+}
+
+const getEarliest = (earliest, observation) => {
+  const current = observation.timestamp
+  return current <= earliest ? current : earliest
+}
+
+const getLatest = (latest, observation) => {
+  const current = observation.timestamp
+  return current >= latest ? current : latest
+}
 
 // DOWNLOAD FILE
 app.get("/get-url/:timeframe/:symbol", (req, res) => {
-    const file = bucket.file(`${req.params.timeframe}/${req.params.symbol}.json`);
 
-    // console.log(file)
+    Pair.find({symbol: req.params.symbol})
+      .then(result => {
+        const [pair] = result
 
-    file.download((error, data) => {
-        res.status(200).send(data)
-    });
+        if (pair !== undefined) {
+          const {
+            symbol,
+            baseToken,
+            quoteToken,
+            poolAddress,
+            poolFee,
+            arrayTypes,
+            extraMinutesData,
+          } = pair
+
+          const observationsIndex = pair.observations.findIndex(observation => {
+            return observation.name === req.params.timeframe
+          })
+
+          if (observationsIndex !== -1 ) {
+            const observationsData = pair.observations[observationsIndex].observationsData
+
+            const earliestTimestamp = observationsData.reduce(getEarliest, observationsData[0].timestamp)
+            const latestTimestamp = observationsData.reduce(getLatest, observationsData[0].timestamp)
+      
+            const symbolObject = {
+              symbol,
+              baseToken,
+              quoteToken,
+              poolAddress,
+              poolFee,
+              arrayTypes,
+              extraMinutesData,
+              observationTimeframe: {
+                name: pair.observations[observationsIndex].name,
+                seconds: pair.observations[observationsIndex].seconds
+              },
+              observations: getObservationsObject(observationsData),
+              startTimestamp: (earliestTimestamp / 1000).toString(),
+              endTimestamp: (latestTimestamp / 1000).toString(),
+              maxObservations: observationsData.length,
+            }
+
+            console.log(symbolObject.observations)
+      
+            res.status(200).send(symbolObject)
+          } else {
+            res.status(404).end()
+          }
+        } else {
+          res.status(404).end()
+        }
+      })
 });
 
 // DOWNLOAD ALL FILENAMES AND CLASSIFY PAIRS ACCORDING TO QUOTE TOKEN
 app.get("/get-symbols/:timeframe/", (req, res) => {
-  const options = {
-    prefix: `${req.params.timeframe}/`,
-  };
+  console.log('symbols!', req.params.timeframe)
+  const symbols = []
 
-  bucket.getFiles(options).then((response) => {
-    const [files] = response;
-    const fileNames = [];
+  Pair.find({})
+    .then(result => {
+      result.forEach(pair => {
+        if (pair.observations.find(observation => {
+          return observation.name === req.params.timeframe
+        }) !== undefined) {
+          symbols.push(pair.symbol)
+        }
+      })
 
-    files.map((file) => {
-      // The file name returned by calling file.name is the complete path of the file:
-      // e.g.: /30 seconds/WETHUSDC.json
-      // The string.substring() function is used to get the symbol out of the file name
-      let startCharacter = options.prefix.length;
-      let endCharacter = file.name.length - '.json'.length;
-      let symbol = file.name.substring(startCharacter, endCharacter);
-      fileNames.push(symbol);
-    });
+      console.log(symbols)
 
-    res.status(200).send(fileNames);      
-  })
+      res.status(200).send(symbols); 
+    })
+
+     
 });
 
 app.use(express.static(path.join(__dirname, process.env.HTML_FOLDER)));

@@ -82,13 +82,14 @@ export const priceDataSlice = createSlice({
             state.priceObject.startTimestamp = payload.startTimestamp;
             state.priceObject.endTimestamp = payload.endTimestamp;
             state.priceObject.observations = payload.observations;
-            state.priceObject.maxTimestamp = Math.max(...Object.keys(payload.observations));
+            state.priceObject.arrayOHLC = payload.arrayOHLC;
+            state.priceObject.maxTimestamp = payload.endTimestamp;
             state.loadingPriceObject = false;
         },
         setArrayOHLC: (state ) => {
-            const arrayOHLC = calculateArrayTimeframe( state.priceObject, state.viewTimeframe );
+            // const arrayOHLC = calculateArrayTimeframe( state.priceObject, state.viewTimeframe );
 
-            state.priceObject.arrayOHLC = arrayOHLC;
+            // state.priceObject.arrayOHLC = arrayOHLC;
             
             state.chartObject.series.map((series) => {
                 if(series.id > 1) {
@@ -98,9 +99,9 @@ export const priceDataSlice = createSlice({
                     const nPeriodsNumber = parseInt(nPeriods);
 
                     if (series.typeMA === 'SMA') {
-                        series.data = calculateSMAFromOHLC(arrayOHLC, nPeriodsNumber, arrayType);
+                        series.data = calculateSMAFromOHLC(state.priceObject.arrayOHLC, nPeriodsNumber, arrayType);
                     } else if (series.typeMA === 'EMA') {
-                        series.data = calculateEMAFromOHLC(arrayOHLC, nPeriodsNumber, arrayType);
+                        series.data = calculateEMAFromOHLC(state.priceObject.arrayOHLC, nPeriodsNumber, arrayType);
                     }
                 }
             });
@@ -213,12 +214,12 @@ export const priceDataSelector = (state) => state.priceData;
 export default priceDataSlice.reducer;
 
 // export asynchronous thunk action
-export function fetchPriceData(symbol) {
+export function fetchPriceData(symbol, timeframeTo) {
     return async (dispatch) => {
         dispatch(getPriceData());
 
         try {
-            const response = await fetch(`/get-url/30 seconds/${symbol}`);
+            const response = await fetch(`/get-url/30/${timeframeTo.seconds}/${symbol}`);
 
             const data = await response.json();
 

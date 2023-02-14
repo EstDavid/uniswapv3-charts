@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
+    fetchPriceData,
     changeTimeframe,
     priceDataSelector
   } from '../slices/priceData';
@@ -10,12 +11,13 @@ import {timeframes, topTimeframes} from '../helpers/timeframes';
 const TimeframeSelector = () => {
     const dispatch = useDispatch();
 
-    const { viewTimeframe } = useSelector(priceDataSelector);
+    const { priceObject, viewTimeframe } = useSelector(priceDataSelector);
 
     const allTimeframes = Object.keys(timeframes);
 
     const timeframeClick = (timeframe) => {
         dispatch(changeTimeframe(timeframe));
+        dispatch(fetchPriceData(priceObject.symbol, timeframe));
     }
 
     const abbreviateName = (name) => {

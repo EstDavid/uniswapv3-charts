@@ -240,8 +240,6 @@ export function fetchPriceData(symbol, timeframeTo) {
 export function changeTimeframe(timeframe) {
     return async (dispatch) => {
         dispatch(switchTimeframe(timeframe));
-        dispatch(initChartObject());
-        dispatch(setArrayOHLC());
     }
 }
 

@@ -11,18 +11,8 @@ const tokenSchema = new mongoose.Schema({
     logoURI: String
 })
 
-const observationsDataSchema = new mongoose.Schema({
-    timestamp: Date,
-    price: Number,
-})
-
-const observationsSchema = new mongoose.Schema({
-name: String,
-seconds: Number,
-observationsData: [observationsDataSchema],
-})
-
 const pairSchema = new mongoose.Schema({
+    _id: String,
     symbol: String,
     baseToken: tokenSchema,
     quoteToken: tokenSchema,
@@ -30,7 +20,6 @@ const pairSchema = new mongoose.Schema({
     poolFee: String,
     arrayTypes: [String],
     extraMinutesData: Number,
-    observations: [observationsSchema],
 })
 
 pairSchema.set('toJSON', {

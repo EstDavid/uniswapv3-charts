@@ -35,6 +35,7 @@ mongoose.connect(url)
     })
 
 const Pair = require('./models/pair')
+const Observation = require('./models/observation')
 
 const getObservationsObject = (observationsArray) => {
   const observationsObject = {}
@@ -58,13 +59,11 @@ const getLatest = (latest, observation) => {
 }
 
 // DOWNLOAD FILE
-app.get("/get-url/:timeframe/:symbol", (req, res) => {
+app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
 
-    Pair.find({symbol: req.params.symbol})
-      .then(result => {
-        const [pair] = result
-
-        if (pair !== undefined) {
+    Pair.findById(req.params.symbol)
+      .then(pair => {
+        if (pair !== undefined && pair !== null) {
           const {
             symbol,
             baseToken,
@@ -75,38 +74,39 @@ app.get("/get-url/:timeframe/:symbol", (req, res) => {
             extraMinutesData,
           } = pair
 
-          const observationsIndex = pair.observations.findIndex(observation => {
-            return observation.name === req.params.timeframe
-          })
+          Observation.findById(`${req.params.symbol}-${req.params.timeframe}`)
+            .then(observation => {
+              if (observation !== null && observation !== undefined) {
+                observation.set('to', parseInt(req.params.timeframeto))
+                const arrayOHLC = observation.get('arrayOHLC')
 
-          if (observationsIndex !== -1 ) {
-            const observationsData = pair.observations[observationsIndex].observationsData
-
-            const earliestTimestamp = observationsData.reduce(getEarliest, observationsData[0].timestamp)
-            const latestTimestamp = observationsData.reduce(getLatest, observationsData[0].timestamp)
-      
-            const symbolObject = {
-              symbol,
-              baseToken,
-              quoteToken,
-              poolAddress,
-              poolFee,
-              arrayTypes,
-              extraMinutesData,
-              observationTimeframe: {
-                name: pair.observations[observationsIndex].name,
-                seconds: pair.observations[observationsIndex].seconds
-              },
-              observations: getObservationsObject(observationsData),
-              startTimestamp: (earliestTimestamp / 1000).toString(),
-              endTimestamp: (latestTimestamp / 1000).toString(),
-              maxObservations: observationsData.length,
-            }
-      
-            res.status(200).send(symbolObject)
-          } else {
-            res.status(404).end()
-          }
+                const earliestTimestamp = observation.earliest
+                const latestTimestamp = observation.latest
+          
+                const symbolObject = {
+                  symbol,
+                  baseToken,
+                  quoteToken,
+                  poolAddress,
+                  poolFee,
+                  arrayTypes,
+                  extraMinutesData,
+                  observationTimeframe: {
+                    name: observation.timeframe.name,
+                    seconds: observation.timeframe.seconds
+                  },
+                  observations: {},
+                  arrayOHLC,
+                  startTimestamp: (earliestTimestamp / 1000).toString(),
+                  endTimestamp: (latestTimestamp / 1000).toString(),
+                  maxObservations: observation.data.length,
+                }
+          
+                res.status(200).send(symbolObject)                
+              } else {
+                res.status(404).end()
+              }
+            })
         } else {
           res.status(404).end()
         }
@@ -114,24 +114,21 @@ app.get("/get-url/:timeframe/:symbol", (req, res) => {
 });
 
 // DOWNLOAD ALL FILENAMES AND CLASSIFY PAIRS ACCORDING TO QUOTE TOKEN
-app.get("/get-symbols/:timeframe/", (req, res) => {
+app.get("/get-symbols/", (req, res) => {
   const symbols = []
-
-  Pair.find({})
+  
+  Pair.find()
     .then(result => {
       result.forEach(pair => {
-        if (pair.observations.find(observation => {
-          return observation.name === req.params.timeframe
-        }) !== undefined) {
           symbols.push(pair.symbol)
-        }
       })
 
       res.status(200).send(symbols); 
     })
-
-     
-});
+    .catch(error => {
+      console.log(error)
+    })
+  })
 
 app.use(express.static(path.join(__dirname, process.env.HTML_FOLDER)));
 

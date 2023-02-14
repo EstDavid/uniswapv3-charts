@@ -94,7 +94,7 @@ export function fetchPairsLists() {
         dispatch(getPairsLists());
 
         try {
-            const response = await fetch(`/get-symbols/30 seconds`);
+            const response = await fetch(`/get-symbols/`);
 
             const symbols = await response.json();
 

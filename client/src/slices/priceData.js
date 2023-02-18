@@ -34,7 +34,8 @@ export const initialState = {
         endTimestamp: undefined,
         observations: {},
         arrayOHLC: {},
-        maxTimestamp: undefined
+        maxTimestamp: undefined,
+        maxObservations: 0
     },
     chartObject: {
         symbol: '',
@@ -84,6 +85,7 @@ export const priceDataSlice = createSlice({
             state.priceObject.observations = payload.observations;
             state.priceObject.arrayOHLC = payload.arrayOHLC;
             state.priceObject.maxTimestamp = payload.endTimestamp;
+            state.priceObject.maxObservations = payload.maxObservations;
             state.loadingPriceObject = false;
         },
         setArrayOHLC: (state ) => {
@@ -110,7 +112,7 @@ export const priceDataSlice = createSlice({
             state.chartObject.symbol = state.priceObject.symbol;
             state.chartObject.series[0].name = `${state.priceObject.symbol} ${state.viewTimeframe.name}`;
             const availableCandles = 
-                Object.keys(state.priceObject.observations).length *
+                state.priceObject.maxObservations *
                 state.priceObject.observationTimeframe.seconds /
                 state.viewTimeframe.seconds;
             state.chartObject.xMin = 

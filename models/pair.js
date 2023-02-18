@@ -26,7 +26,18 @@ const pairSchema = new mongoose.Schema({
 
 pairSchema.set('toJSON', {
     transform: (document, returnedObject) => {
+        const { priceData } = returnedObject
         returnedObject.id = returnedObject._id.toString()
+        returnedObject.observationTimeframe = {
+            name: priceData.timeframe.name,
+            seconds: priceData.timeframe.seconds
+        }
+        returnedObject.observations = {}
+        returnedObject.arrayOHLC = priceData.arrayOHLC
+        returnedObject.startTimestamp = (priceData.earliest).getTime() / 1000
+        returnedObject.endTimestamp = (priceData.latest).getTime() / 1000
+        returnedObject.maxObservations = priceData.maxObservations
+        delete returnedObject.priceData
         delete returnedObject._id
         delete returnedObject.__v
     }

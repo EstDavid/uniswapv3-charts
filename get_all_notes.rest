@@ -1,0 +1,30 @@
+GET http://localhost:5000/get-symbols/
+Content-Type: application/json
+
+###
+
+GET http://localhost:5000/get-url/30/DAIUSDC/
+Content-Type: application/json
+
+###
+
+GET http://localhost:3001/api/persons/
+
+###
+
+GET http://localhost:5000/get-person/
+
+###
+
+GET https://phonebook-backend-0rm9.onrender.com/api/persons/63e3eb0e0b8c2390acf49ad6
+
+###
+
+GET http://localhost:3001/info
+###
+
+GET http://localhost:3001/api/persons/63e4bb4f56406d59acbcf506
+
+###
+
+DELETE http://localhost:3001/api/persons/63e4fdb6d819a897266eae00

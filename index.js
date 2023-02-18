@@ -70,74 +70,14 @@ mongoose.connect(url)
 
 const Pair = require('./models/pair')
 
-const getObservationsObject = (observationsArray) => {
-  const observationsObject = {}
-
-  observationsArray.forEach(observation => {
-    const timestampSeconds = Date.parse(observation.timestamp) / 1000
-    observationsObject[timestampSeconds] = observation.price
-  })
-
-  return observationsObject
-}
-
-const getEarliest = (earliest, observation) => {
-  const current = observation.timestamp
-  return current <= earliest ? current : earliest
-}
-
-const getLatest = (latest, observation) => {
-  const current = observation.timestamp
-  return current >= latest ? current : latest
-}
-
 // DOWNLOAD FILE
 app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
 
     Pair.findById(req.params.symbol)
       .then(pair => {
         if (pair !== undefined && pair !== null) {
-          const {
-            symbol,
-            baseToken,
-            quoteToken,
-            poolAddress,
-            poolFee,
-            arrayTypes,
-            extraMinutesData,
-            priceData
-          } = pair
-
-          if (priceData.observations.length > 0) {
-            priceData.set('to', parseInt(req.params.timeframeto))
-            const arrayOHLC = pair.priceData.get('arrayOHLC')
-
-            const earliestTimestamp = priceData.earliest
-            const latestTimestamp = priceData.latest
-      
-            const symbolObject = {
-              symbol,
-              baseToken,
-              quoteToken,
-              poolAddress,
-              poolFee,
-              arrayTypes,
-              extraMinutesData,
-              observationTimeframe: {
-                name: priceData.timeframe.name,
-                seconds: priceData.timeframe.seconds
-              },
-              observations: {},
-              arrayOHLC,
-              startTimestamp: (earliestTimestamp / 1000).toString(),
-              endTimestamp: (latestTimestamp / 1000).toString(),
-              maxObservations: priceData.observations.length,
-            }
-      
-            res.status(200).send(symbolObject)                
-          } else {
-            res.status(404).end()
-          }
+          pair.priceData.timeframeTo.seconds = req.params.timeframeto
+          res.status(200).json(pair)                
         } else {
           res.status(404).end()
         }

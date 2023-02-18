@@ -3,13 +3,47 @@
 
 require('dotenv').config()
 const express = require("express");
+const morgan = require('morgan')
 var cors = require("cors");
 var { format }  = require("util");
 var Multer = require( "multer");
 var path = require('path');
 
 const app = express();
+app.use(express.static('build'))
+app.use(express.json())
+app.use(cors())
 const port = process.env.PORT || 5000;
+
+// Creating custom token 'data' which returns the request.data stringified object from
+// the 'processData' middleware function
+morgan.token('data', (request, response) => request.data)
+
+const processData = (request, response, next) => {
+    request.data = JSON.stringify(request.body)
+    next()
+}
+
+// Using middleware function 'processData', which stringifies the request.body
+app.use(processData)
+
+// Using a custom format function which replicates the output of
+// the 'tiny' format, and adds request data with HTTP POST resquests
+app.use(morgan((tokens, request, response) => {
+    let customFormat = [
+        tokens.method(request, response),
+        tokens.url(request, response),
+        tokens.status(request, response),
+        tokens.res(request, response, 'content-length'), '-',
+        tokens['response-time'](request, response), 'ms'
+    ]
+
+    // When the server receives a 'POST' request, the data of the request is added to the console log
+    if (request.method === 'POST') {
+        customFormat = customFormat.concat(tokens.data(request, response))
+    }
+    return customFormat.join(' ')
+}))
 
 const multer = Multer({
   storage: Multer.memoryStorage(),
@@ -35,7 +69,6 @@ mongoose.connect(url)
     })
 
 const Pair = require('./models/pair')
-const Observation = require('./models/observation')
 
 const getObservationsObject = (observationsArray) => {
   const observationsObject = {}
@@ -72,41 +105,39 @@ app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
             poolFee,
             arrayTypes,
             extraMinutesData,
+            priceData
           } = pair
 
-          Observation.findById(`${req.params.symbol}-${req.params.timeframe}`)
-            .then(observation => {
-              if (observation !== null && observation !== undefined) {
-                observation.set('to', parseInt(req.params.timeframeto))
-                const arrayOHLC = observation.get('arrayOHLC')
+          if (priceData.observations.length > 0) {
+            priceData.set('to', parseInt(req.params.timeframeto))
+            const arrayOHLC = pair.priceData.get('arrayOHLC')
 
-                const earliestTimestamp = observation.earliest
-                const latestTimestamp = observation.latest
-          
-                const symbolObject = {
-                  symbol,
-                  baseToken,
-                  quoteToken,
-                  poolAddress,
-                  poolFee,
-                  arrayTypes,
-                  extraMinutesData,
-                  observationTimeframe: {
-                    name: observation.timeframe.name,
-                    seconds: observation.timeframe.seconds
-                  },
-                  observations: {},
-                  arrayOHLC,
-                  startTimestamp: (earliestTimestamp / 1000).toString(),
-                  endTimestamp: (latestTimestamp / 1000).toString(),
-                  maxObservations: observation.data.length,
-                }
-          
-                res.status(200).send(symbolObject)                
-              } else {
-                res.status(404).end()
-              }
-            })
+            const earliestTimestamp = priceData.earliest
+            const latestTimestamp = priceData.latest
+      
+            const symbolObject = {
+              symbol,
+              baseToken,
+              quoteToken,
+              poolAddress,
+              poolFee,
+              arrayTypes,
+              extraMinutesData,
+              observationTimeframe: {
+                name: priceData.timeframe.name,
+                seconds: priceData.timeframe.seconds
+              },
+              observations: {},
+              arrayOHLC,
+              startTimestamp: (earliestTimestamp / 1000).toString(),
+              endTimestamp: (latestTimestamp / 1000).toString(),
+              maxObservations: priceData.observations.length,
+            }
+      
+            res.status(200).send(symbolObject)                
+          } else {
+            res.status(404).end()
+          }
         } else {
           res.status(404).end()
         }
@@ -116,8 +147,8 @@ app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
 // DOWNLOAD ALL FILENAMES AND CLASSIFY PAIRS ACCORDING TO QUOTE TOKEN
 app.get("/get-symbols/", (req, res) => {
   const symbols = []
-  
-  Pair.find()
+
+  Pair.find({}, {symbol: 1, _id: 0})
     .then(result => {
       result.forEach(pair => {
           symbols.push(pair.symbol)

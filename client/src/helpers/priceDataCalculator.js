@@ -70,10 +70,8 @@ export const calculateArrayTimeframe = (priceObject, timeframeTo) => {
 
 export const calculateCandlestickData = (arrayOHLC) => {
     let candlestickData = [];
-    let timestamps = Object.keys(arrayOHLC);
-    for(let timestamp of timestamps) {
-      let priceOHLC = arrayOHLC[timestamp];
-      candlestickData.push([timestamp * 1000,[priceOHLC.open, priceOHLC.high, priceOHLC.low, priceOHLC.close]]);
+    for(let candle of arrayOHLC) {
+      candlestickData.push([new Date(candle._id).getTime(),[candle.open, candle.high, candle.low, candle.close]]);
     }
   
     return candlestickData;
@@ -148,15 +146,15 @@ export const calculateEMAFromOHLC = (arrayOHLC, nPeriods, arrayType) => {
 export const getChartingData = (dataObject, arrayOHLC) => {
     const chartingData = [];
     let timestampsArray = [];
-    for(let timestamp in arrayOHLC) {
-        timestampsArray.push(parseInt(timestamp));
+    for(let valueOHLC of arrayOHLC) {
+        timestampsArray.push(parseInt(new Date(valueOHLC._id).getTime()));
     }
     timestampsArray.sort((a, b) => a - b);
     let j = 0;
     for(let i = 0; i < timestampsArray.length; i += 1) {
         let timestamp = timestampsArray[i];
         if(timestamp >= dataObject.initialTimestamp) {
-            chartingData.push([ timestamp * 1000, dataObject.lineData[j]]);
+            chartingData.push([timestamp, dataObject.lineData[j]]);
             j += 1;
         }
     }
@@ -165,20 +163,20 @@ export const getChartingData = (dataObject, arrayOHLC) => {
 
 const getPriceArray = (arrayOHLC, arrayType) => {
     let priceArray = {};
-    for(let timestamp in arrayOHLC) {
-        let valuesOHLC = arrayOHLC[timestamp];
+    for(let valueOHLC of arrayOHLC) {
+        const timestamp = new Date(valueOHLC._id).getTime()
         // Brute but effective way of getting the array...
         if(arrayType === 'open') {
-            priceArray[timestamp] = valuesOHLC.open;
+            priceArray[timestamp] = valueOHLC.open;
         }
         if(arrayType === 'high') {
-            priceArray[timestamp] = valuesOHLC.high;
+            priceArray[timestamp] = valueOHLC.high;
         }
         if(arrayType === 'low') {
-            priceArray[timestamp] = valuesOHLC.low;
+            priceArray[timestamp] = valueOHLC.low;
         }
         if(arrayType === 'close') {
-            priceArray[timestamp] = valuesOHLC.close;
+            priceArray[timestamp] = valueOHLC.close;
         }
     }
     return priceArray;

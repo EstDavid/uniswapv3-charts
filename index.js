@@ -69,19 +69,113 @@ mongoose.connect(url)
     })
 
 const Pair = require('./models/pair')
+const Price = require('./models/price')
 
 // DOWNLOAD FILE
 app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
+  const { symbol, timeframe, timeframeto } = req.params
 
-    Pair.findById(req.params.symbol)
-      .then(pair => {
-        if (pair !== undefined && pair !== null) {
-          pair.priceData.timeframeTo.seconds = req.params.timeframeto
-          res.status(200).json(pair)                
-        } else {
-          res.status(404).end()
+  Price.aggregate([
+    {
+        $match: {
+            // timestamp: { $gt: new Date("2022-12-01") },
+            "metadata.symbol" : symbol,
+            "metadata.seconds": parseInt(timeframe)
         }
-      })
+    },
+    {
+        $project: {
+            timestamp: 1,
+            price: 1,
+        }
+    },
+    {
+        $group: {
+            _id: {
+                $dateFromParts: {
+                    'year': { $year: '$timestamp' },
+                    'month': { $month: '$timestamp' },
+                    'day': {
+                        $subtract: [
+                            { $dayOfMonth: '$timestamp'},
+                            { $mod: [
+                                { $dayOfMonth: '$timestamp'},
+                                timeframeto / (60 * 60 * 24)
+                            ]}]
+                    },
+                    'hour': {
+                        $subtract: [
+                            { $hour: '$timestamp'},
+                            { $mod: [
+                                { $hour: '$timestamp'},
+                                timeframeto / (60 * 60)
+                            ]}]
+                    },
+                    'minute': {
+                        $subtract: [
+                            { $minute: '$timestamp'},
+                            { $mod: [
+                                { $minute: '$timestamp'},
+                                timeframeto / 60
+                            ]}]
+                    }
+                }
+            },
+            open: { $first: "$price"},
+            low: { $min: "$price"},
+            high: {$max: "$price"},
+            close: { $last: "$price"},
+        }
+    },
+    {
+        $sort: {
+            _id: 1
+        }
+    }
+]).then(arrayOHLC => {
+    console.log(arrayOHLC.length, 'candles')
+
+    Pair.findById(symbol, {priceData: 0})
+        .then(pair => {
+            if (
+                pair !== undefined &&
+                pair !== null &&
+                arrayOHLC.length > 0
+            ) {
+                const {
+                    symbol,
+                    baseToken,
+                    quoteToken,
+                    poolAddress,
+                    poolFee,
+                    arrayTypes,
+                    extraMinutesData,
+                } = pair
+
+                const pairObject = {
+                    symbol,
+                    baseToken,
+                    quoteToken,
+                    poolAddress,
+                    poolFee,
+                    arrayTypes,
+                    extraMinutesData,
+                    arrayOHLC,
+                    observationTimeframe: {
+                        name: "30 seconds",
+                        seconds: 30,
+                    },
+                    startTimestamp: new Date(arrayOHLC[0]._id),
+                    endTimestamp: new Date(arrayOHLC[arrayOHLC.length - 1]._id),
+                    maxTimestamp: new Date(arrayOHLC[arrayOHLC.length - 1]._id),
+                    maxObservations: arrayOHLC.length,
+                }
+                res.status(200).send(pairObject)
+            } else {
+                res.status(404).end()
+            }
+        })               
+    })
 });
 
 // DOWNLOAD ALL FILENAMES AND CLASSIFY PAIRS ACCORDING TO QUOTE TOKEN

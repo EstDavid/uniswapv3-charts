@@ -8,7 +8,7 @@ export const initialState = {
     loading: true,
     hasErrors: false,
     indicatorsLimit: 5,
-    viewTimeframe: timeframes['hours1'],
+    viewTimeframe: timeframes['days1'],
     priceDataRaw: {},
     maxCandlesNumber: 150,
     showCTRLMouseWheel: false,
@@ -33,7 +33,7 @@ export const initialState = {
         startTimestamp: undefined,
         endTimestamp: undefined,
         observations: {},
-        arrayOHLC: {},
+        arrayOHLC: [],
         maxTimestamp: undefined,
         maxObservations: 0
     },
@@ -80,11 +80,11 @@ export const priceDataSlice = createSlice({
             state.priceObject.poolFee = payload.poolFee;
             state.priceObject.observationTimeframe = payload.observationTimeframe;
             state.priceObject.arrayTypes = payload.arrayTypes;
-            state.priceObject.startTimestamp = payload.startTimestamp;
-            state.priceObject.endTimestamp = payload.endTimestamp;
+            state.priceObject.startTimestamp = new Date(payload.startTimestamp).getTime();
+            state.priceObject.endTimestamp = new Date(payload.endTimestamp).getTime();
             state.priceObject.observations = payload.observations;
             state.priceObject.arrayOHLC = payload.arrayOHLC;
-            state.priceObject.maxTimestamp = payload.endTimestamp;
+            state.priceObject.maxTimestamp = new Date(payload.endTimestamp).getTime();
             state.priceObject.maxObservations = payload.maxObservations;
             state.loadingPriceObject = false;
         },
@@ -112,16 +112,14 @@ export const priceDataSlice = createSlice({
             state.chartObject.symbol = state.priceObject.symbol;
             state.chartObject.series[0].name = `${state.priceObject.symbol} ${state.viewTimeframe.name}`;
             const availableCandles = 
-                state.priceObject.maxObservations *
-                state.priceObject.observationTimeframe.seconds /
-                state.viewTimeframe.seconds;
+                state.priceObject.maxObservations;
             state.chartObject.xMin = 
                 (
-                    state.priceObject.maxTimestamp - 
+                    (state.priceObject.maxTimestamp / 1000) - 
                     Math.min(state.maxCandlesNumber, availableCandles * 1.2) *
                     state.viewTimeframe.seconds
                 ) * 1000;
-            state.chartObject.xMax = state.priceObject.maxTimestamp * 1000;
+            state.chartObject.xMax = state.priceObject.maxTimestamp;
         },
         switchTimeframe: (state, {payload}) => {
             state.viewTimeframe = payload;
@@ -234,6 +232,7 @@ export function fetchPriceData(symbol, timeframeTo) {
             dispatch(setArrayOHLC());
 
         } catch(error) {
+            console.log(error)
             dispatch(getPriceDataFailure())
         }
     }

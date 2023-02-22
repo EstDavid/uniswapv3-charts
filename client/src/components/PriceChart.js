@@ -122,15 +122,6 @@ const PriceChart = () => {
   }
 
   const renderChart = () => {
-    if(loading) return (
-      <div className="d-flex w-100 align-items-center justify-content-between p-2">
-        <div className="spinner-border text-secondary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>        
-      </div>
-
-    )
-    if(hasErrors) return <p>Unable to display chart</p>
 
     const priceChart = {
       symbol: priceObject.symbol,
@@ -142,19 +133,30 @@ const PriceChart = () => {
       <div>
         <ChartTitle />
         <TimeframeSelector />
-        <div className="card my-2">
-          <div onWheel={handleScroll}>
-            <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
-              options={priceChart.options}
-              series={priceChart.series}
-            />
-            {showCTRLMouseWheel ?
-              <div className="ctrl-mousewheel-text card-img-overlay">
-                <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
-              </div>
-              : ''}
+        { loading ? 
+          <div className="d-flex w-100 align-items-center justify-content-between p-2">
+            <div className="spinner-border text-secondary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>        
           </div>
-        </div>
+        :
+        hasErrors ? 
+          <p>Unable to display chart</p>
+        :
+          <div className="card my-2">
+            <div onWheel={handleScroll}>
+              <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
+                options={priceChart.options}
+                series={priceChart.series}
+              />
+              {showCTRLMouseWheel ?
+                <div className="ctrl-mousewheel-text card-img-overlay">
+                  <div>Press CTRL key + mouse wheel to scroll the chart left and right</div>
+                </div>
+                : ''}
+            </div>
+          </div>
+        }
       </div>
     );
   }

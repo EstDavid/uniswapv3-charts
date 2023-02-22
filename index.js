@@ -75,6 +75,93 @@ const Price = require('./models/price')
 app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
   const { symbol, timeframe, timeframeto } = req.params
 
+  const yearSeconds = 60 * 60 * 24 * 365
+  const monthSeconds = 60 * 60 * 24 * 30
+  const weekSeconds = 60 * 60 * 24 * 7
+  const daySeconds = 60 * 60 * 24
+  const hourSeconds = 60 * 60
+  const minuteSeconds = 60
+
+  const fieldsOHLC = {
+    open: { $first: "$price"},
+    low: { $min: "$price"},
+    high: {$max: "$price"},
+    close: { $last: "$price"},
+  }
+
+  const yearGroup = {
+    'year': { $year: '$timestamp' }
+  }
+
+  const monthGroup = {
+    ...yearGroup,
+    'month': { $month: '$timestamp' }
+  }
+
+  const weekGroup = {
+    'isoWeekYear': { $isoWeekYear: '$timestamp' } ,
+    'isoWeek': { $isoWeek: '$timestamp' },
+  }
+
+  const dayGroup = {
+    ...monthGroup,
+    'day': { $dayOfMonth: '$timestamp' }
+  }
+
+  const minutesHoursGroup = {
+    ...monthGroup,
+    'day': {
+        $subtract: [
+            { $dayOfMonth: '$timestamp'},
+            { $mod: [
+                { $dayOfMonth: '$timestamp'},
+                timeframeto / daySeconds
+            ]}]
+    },
+    'hour': {
+        $subtract: [
+            { $hour: '$timestamp'},
+            { $mod: [
+                { $hour: '$timestamp'},
+                timeframeto / hourSeconds
+            ]}]
+    },
+    'minute': {
+        $subtract: [
+            { $minute: '$timestamp'},
+            { $mod: [
+                { $minute: '$timestamp'},
+                timeframeto / minuteSeconds
+            ]}]
+    }   
+  }
+
+  if ( timeframeto % yearSeconds === 0 ) {
+    timestampGroup = yearGroup
+  } else if ( timeframeto % monthSeconds === 0 ) {
+    timestampGroup = monthGroup
+  } else if ( timeframeto % weekSeconds === 0 ) {
+    timestampGroup = weekGroup
+  } else if ( timeframeto % daySeconds === 0 ) {
+    timestampGroup = dayGroup
+  } else {
+    timestampGroup = minutesHoursGroup
+  }
+
+  const groupParams = {
+    '$group': {
+        _id: {
+            '$dateFromParts': {
+                ...timestampGroup
+            }
+        },
+        open: { $first: "$price"},
+        low: { $min: "$price"},
+        high: {$max: "$price"},
+        close: { $last: "$price"},
+    }
+  }
+
   Price.aggregate([
     {
         $match: {
@@ -90,42 +177,7 @@ app.get("/get-url/:timeframe/:timeframeto/:symbol", (req, res) => {
         }
     },
     {
-        $group: {
-            _id: {
-                $dateFromParts: {
-                    'year': { $year: '$timestamp' },
-                    'month': { $month: '$timestamp' },
-                    'day': {
-                        $subtract: [
-                            { $dayOfMonth: '$timestamp'},
-                            { $mod: [
-                                { $dayOfMonth: '$timestamp'},
-                                timeframeto / (60 * 60 * 24)
-                            ]}]
-                    },
-                    'hour': {
-                        $subtract: [
-                            { $hour: '$timestamp'},
-                            { $mod: [
-                                { $hour: '$timestamp'},
-                                timeframeto / (60 * 60)
-                            ]}]
-                    },
-                    'minute': {
-                        $subtract: [
-                            { $minute: '$timestamp'},
-                            { $mod: [
-                                { $minute: '$timestamp'},
-                                timeframeto / 60
-                            ]}]
-                    }
-                }
-            },
-            open: { $first: "$price"},
-            low: { $min: "$price"},
-            high: {$max: "$price"},
-            close: { $last: "$price"},
-        }
+        ...groupParams,
     },
     {
         $sort: {

@@ -1,24 +1,4 @@
 export const timeframes = {
-    seconds1: {
-        name: '1 second',
-        seconds: 1,
-    },
-    seconds5: {
-        name: '5 seconds',
-        seconds: 5,
-    },
-    seconds10: {
-        name: '10 seconds',
-        seconds: 10,
-    },
-    seconds15: {
-        name: '15 seconds',
-        seconds: 15,
-    },
-    seconds30: {
-        name: '30 seconds',
-        seconds: 30,
-    },
     minutes1: {
         name: '1 minute',
         seconds: 1 * 60,
@@ -70,14 +50,49 @@ export const timeframes = {
     days1: {
         name: '1 day',
         seconds: 1 * 24 * 60 * 60,
+    },
+    weeks1: {
+        name: '1 week',
+        seconds: 7 * 24 * 60 * 60,
+    },
+    months1: {
+        name: '1 month',
+        seconds: 30 * 24 * 60 * 60,
+    },
+    years1: {
+        name: '1 year',
+        seconds: 365 * 24 * 60 * 60,
     }
 }
 
 export const topTimeframes = [
-    'minutes5',
-    'minutes15',
-    'minutes30',
     'hours1',
     'hours4',
-    'days1'
+    'days1',
+    'weeks1',
+    'months1',
+    'years1'
 ]
+
+const smallTimeframes = {
+    seconds1: {
+        name: '1 second',
+        seconds: 1,
+    },
+    seconds5: {
+        name: '5 seconds',
+        seconds: 5,
+    },
+    seconds10: {
+        name: '10 seconds',
+        seconds: 10,
+    },
+    seconds15: {
+        name: '15 seconds',
+        seconds: 15,
+    },
+    seconds30: {
+        name: '30 seconds',
+        seconds: 30,
+    }
+}

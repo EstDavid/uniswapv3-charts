@@ -27,6 +27,9 @@ const ChartTitle = () => {
     const baseLogo = priceObject.baseToken.logoURI;
     const quoteLogo = priceObject.quoteToken.logoURI;
 
+    const showTokens = priceObject.baseToken.address !== undefined &&
+        priceObject.quoteToken.address !== undefined
+
     const showLogos = 
         baseLogo !== undefined &&
         baseLogo !== '' && 
@@ -36,26 +39,37 @@ const ChartTitle = () => {
     return (
         <div className="d-flex w-100 align-items-center justify-content-between">
             <div className="list-group list-group-horizontal list-group-flush">
-                <TokenDisplay 
-                    address={priceObject.baseToken.address} 
-                    symbol={priceObject.baseToken.symbol}
-                    showLogos={showLogos}
-                    logoURI={baseLogo} 
-                />                
-                <a className="list-group-item px-0 text-reset border-0"><h2>/</h2></a>
-                <TokenDisplay 
-                    address={priceObject.quoteToken.address} 
-                    symbol={priceObject.quoteToken.symbol}
-                    showLogos={showLogos}
-                    logoURI={quoteLogo} 
-                /> 
+                { showTokens ? 
+                    <>
+                        <TokenDisplay 
+                            address={priceObject.baseToken.address} 
+                            symbol={priceObject.baseToken.symbol}
+                            showLogos={showLogos}
+                            logoURI={baseLogo} 
+                        />                
+                        <a className="list-group-item px-0 text-reset border-0"><h2>/</h2></a>
+                        <TokenDisplay 
+                            address={priceObject.quoteToken.address} 
+                            symbol={priceObject.quoteToken.symbol}
+                            showLogos={showLogos}
+                            logoURI={quoteLogo} 
+                        /> 
+                    </>
+                :
+                    <div style={{height: "60px"}}>
+                    </div>
+                }
             </div>
-            <div>
-            <a className="btn btn-outline-secondary"
-                href={`https://info.uniswap.org/#/pools/${priceObject.poolAddress.toLowerCase()}`}
-                target="_blank" rel="noreferrer noopener">
-            Pool: {`${priceObject.poolAddress.slice(0,6)}...${priceObject.poolAddress.slice(priceObject.poolAddress.length - 4)}`}</a>
-            </div>
+            { showTokens ? 
+                <div>
+                    <a className="btn btn-outline-secondary"
+                        href={`https://info.uniswap.org/#/pools/${priceObject.poolAddress.toLowerCase()}`}
+                        target="_blank" rel="noreferrer noopener">
+                    Pool: {`${priceObject.poolAddress.slice(0,6)}...${priceObject.poolAddress.slice(priceObject.poolAddress.length - 4)}`}</a>
+                </div>        
+            :
+                null
+            }
         </div>
     )
 }

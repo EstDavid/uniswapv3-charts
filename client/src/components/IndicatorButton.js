@@ -24,9 +24,9 @@ const IndicatorButton = (props) => {
     const indicatorLimitReached = chartObject.series.length - 1 >= indicatorsLimit;
 
     return(
-        <div className="mb-2">
+        <div className="mb-2 col-8 mx-auto">
             <button 
-                className="btn btn-primary"
+                className="btn btn-primary w-100"
                 id="add-indicator"
                 aria-expanded={showIndicatorDialog}
                 onClick={handleToggle}

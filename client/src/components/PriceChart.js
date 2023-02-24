@@ -130,7 +130,7 @@ const PriceChart = () => {
     }
 
     return (
-      <div>
+      <div className="d-flex flex-wrap">
         <ChartTitle />
         <TimeframeSelector />
         { loading ? 
@@ -143,7 +143,7 @@ const PriceChart = () => {
         hasErrors ? 
           <p>Unable to display chart</p>
         :
-          <div className="card my-2">
+          <div className="card my-2 col-12">
             <div onWheel={handleScroll}>
               <Chart style={showCTRLMouseWheel ? { opacity: "0.2" } : {}}
                 options={priceChart.options}

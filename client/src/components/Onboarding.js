@@ -92,7 +92,7 @@ const OnboardingButton = (props) => {
   };
   return (
     <button 
-      className="btn btn-warning alert-button col-md-auto mb-3 mb-md-0 me-md-3" 
+      className="btn btn-warning alert-button col-10 col-md-6 col-lg mx-auto" 
       disabled={isDisabled}
       onClick={onClick}>
       {buttonText}

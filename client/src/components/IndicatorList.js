@@ -35,7 +35,7 @@ const IndicatorList = () => {
     }
 
     return (
-        <div className="d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
+        <div className="col-10 col-sm-8 col-lg-12 mx-auto d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
                 {chartObject.series.map((dataObject, index) => {
                     if (dataObject.id > 1) {
                         return (

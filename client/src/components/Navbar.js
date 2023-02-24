@@ -35,10 +35,10 @@ const filterSymbols = (event) => {
 }
 
   return(
-    <nav className="navbar navbar-expand-md navbar-primary bg-primary text-white pb-2" aria-label="UniCharts navbar">
+    <nav className="navbar navbar-expand-lg navbar-primary bg-primary text-white pb-2" aria-label="UniCharts navbar">
       <div className="container-fluid">
         <a href="/" className="navbar-brand text-white text-decoration-none me-md-auto d-flex align-items-center">
-        <h1><span className="badge bg-secondary me-2 p-2">UC</span></h1>
+          <h1><span className="badge bg-secondary me-2 p-2">UC</span></h1>
           <h2>UniCharts</h2>
         </a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,9 +46,9 @@ const filterSymbols = (event) => {
         </button>
 
         <div className="collapse navbar-collapse" id="navbar-menu">
-          <div className="navbar-nav ms-auto flex-nowrap mt-3 mt-md-0">
-            <OnboardingButton />
-            <form className="nav-item dropdown col-md-auto mb-3 mb-md-0 me-md-3">
+          <div className="navbar-nav ms-auto d-flex gap-2">
+            <OnboardingButton/>
+            <form className="nav-item dropdown col-10 col-md-6 col-lg mx-auto">
               <input
                 type="search"
                 className="form-control form-control-dark"
@@ -68,7 +68,7 @@ const filterSymbols = (event) => {
             </form>
             <a
               role="button"
-              className="btn btn-outline-light"
+              className="btn btn-outline-light col-10 col-md-6 col-lg mx-auto"
               href="https://github.com/Vandenynas/uniswapv3-charts"
               target="_blank"
               rel="noreferrer noopener"

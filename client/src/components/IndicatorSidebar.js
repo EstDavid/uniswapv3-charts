@@ -14,12 +14,12 @@ const IndicatorSidebar = () => {
     const { defaultBlockchainActive } = useSelector(blockchainSelector);
 
     return(
-        <div className="flex-shrink-0 p-3 bg-white" style={{width: "280px"}}>
+        <div className="p-3 bg-white w-100 d-flex flex-wrap">
             {!metamaskInstalled || account === undefined || !defaultBlockchainActive ? 
-            <div></div> : <TokenBalances />}
-            <div className="d-flex align-items-center pb-3 mb-3 text-decoration-none border-bottom">
+            null : <TokenBalances />}
+            <div className="d-flex align-items-center pb-3 mb-3 w-100 text-decoration-none border-bottom">
                 <svg className="bi me-2" width="30" height="24"></svg>
-                <span className="fs-5 fw-semibold">Indicators</span>
+                <span className="fs-5 fw-semibold mx-auto">Indicators</span>
             </div>
             <IndicatorButton buttonText="Add new indicator"/>
             <IndicatorSettings buttonText="Add indicator" indicatorId={0} />

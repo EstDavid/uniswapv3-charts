@@ -37,8 +37,8 @@ const ChartTitle = () => {
         quoteLogo !== ''; 
     
     return (
-        <div className="d-flex w-100 align-items-center justify-content-between">
-            <div className="list-group list-group-horizontal list-group-flush">
+        <div className="col-12 d-flex flex-wrap w-100 align-items-center justify-content-between mb-2">
+            <div className="list-group list-group-horizontal list-group-flush mx-auto mx-md-0">
                 { showTokens ? 
                     <>
                         <TokenDisplay 
@@ -61,8 +61,8 @@ const ChartTitle = () => {
                 }
             </div>
             { showTokens ? 
-                <div>
-                    <a className="btn btn-outline-secondary"
+                <div className="col-10 col-md-4 mx-auto mx-md-0 text-center">
+                    <a className="btn btn-outline-secondary w-100"
                         href={`https://info.uniswap.org/#/pools/${priceObject.poolAddress.toLowerCase()}`}
                         target="_blank" rel="noreferrer noopener">
                     Pool: {`${priceObject.poolAddress.slice(0,6)}...${priceObject.poolAddress.slice(priceObject.poolAddress.length - 4)}`}</a>

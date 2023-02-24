@@ -47,7 +47,7 @@ const PairsList = (props) => {
             >
                 {props.listName}
             </button>
-            <div className="collapse" id={`dashboard-collapse-${props.idNumber}`}>
+            <div className="collapse my-2" id={`dashboard-collapse-${props.idNumber}`}>
                     <input 
                         type="text"
                         placeholder={`Search ${props.listSymbol} symbol...`}

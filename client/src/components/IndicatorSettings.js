@@ -47,7 +47,7 @@ const IndicatorSettings = (props) => {
     }
 
     return(
-        <div className="mb-2">
+        <div className="mb-2 col-12 mx-auto">
         {showIndicatorDialog && currentIndicator.id === props.indicatorId ? 
             <form aria-labelledby="btnGroupDrop1" onSubmit={handleSubmit}>
                 <fieldset>

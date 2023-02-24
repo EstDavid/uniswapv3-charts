@@ -10,13 +10,13 @@ function App() {
       <Navbar />
       <div className="container-fluid">
         <div className="row">
-          <div className="col-lg-3">
+          <div className="col-12 col-lg-3 mt-2">
             <IndicatorSidebar />
           </div>
-          <div className="col-lg-7">
+          <div className="col-12 col-lg-7 mt-2">
             <PriceChart />
           </div>
-          <div className="col-lg-2">
+          <div className="col-12 col-lg-2 mt-2">
             <PairsSidebar />
           </div>
         </div>

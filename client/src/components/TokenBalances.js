@@ -11,7 +11,8 @@ const TokenBalances = () => {
     const dispatch = useDispatch();
 
     const {
-        loading, 
+        loading,
+        hasErrors,
         priceObject,
     } = useSelector(priceDataSelector);
   
@@ -44,7 +45,15 @@ const TokenBalances = () => {
         }
     }
 
-    const lastPrice = priceObject.observations[priceObject.endTimestamp];
+
+    let lastPrice = 0
+    if ( !loading && !hasErrors) {
+        const latestCandle = priceObject.arrayOHLC.find(candle => {
+            return new Date(candle._id).getTime() === priceObject.endTimestamp
+        })
+
+        lastPrice = latestCandle.close
+    }
 
     let totalBaseBalanceWei = baseTokenBalance;
     let totalQuoteBalanceWei = quoteTokenBalance;
@@ -96,15 +105,15 @@ const TokenBalances = () => {
     const columnNames = ['Account balance', '(Countervalue)'];
 
     return (
-        <div>
+        <div className="mx-auto w-100">
             {balancesLoading || loading ? 
             <div className="spinner-border text-secondary" role="status">
                 <span className="visually-hidden">Loading...</span>
             </div>
             :
-            <table className="table table-borderless table-sm">
-                <thead className="thead table-secondary">
-                    <tr className="text-center">
+            <table className="table table-sm">
+                <thead className="thead">
+                    <tr className="text-center align-middle">
                         {columnNames.map((name, index) => {
                             return <th key={index} scope="col"><small>{name}</small></th>
                         })}
@@ -115,13 +124,13 @@ const TokenBalances = () => {
                         return (
                             <tr key={index} >
                                 <td className="text-center">
-                                    <span className="badge rounded-pill bg-dark" style={{width : "100%"}} >
+                                    <span className="" style={{width : "100%"}} >
                                         <small>{`${balancesData[key].balance} ${balancesData[key].symbol}`}</small>
                                     </span>
                                 </td>
                                     {/* <i className="p-2 bi bi-arrow-right-circle-fill"></i> */}
                                 <td className="text-center">
-                                    <span className="badge rounded-pill bg-secondary" style={{width : "100%"}} >
+                                    <span className="" style={{width : "100%"}} >
                                         <small>{`( ${balancesData[key].counterValue} ${balancesData[key].counterSymbol})`}</small>
                                     </span>
                                 </td>            
